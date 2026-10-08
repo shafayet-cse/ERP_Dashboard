@@ -1,0 +1,2527 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sales Analytics ERP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+:root{
+  --sidebar-bg:#0F2136; --sidebar-bg-hover:#16324F; --accent:#10B981; --accent-dark:#0B8F68;
+  --warn:#F59E0B; --danger:#EF4444; --bg-body:#F1F4F8; --card-bg:#FFFFFF;
+  --text-dark:#16202B; --text-muted:#6B7684; --border:#E4E9F0; --input-bg:#F8FAFC;
+}
+html[data-theme="dark"]{
+  --sidebar-bg:#05090F; --sidebar-bg-hover:#101B29; --accent:#19D28C; --accent-dark:#0FAE73;
+  --warn:#FBBF24; --danger:#F87171; --bg-body:#0B121B; --card-bg:#111B27;
+  --text-dark:#E7EEF6; --text-muted:#8195AA; --border:#1F2E3D; --input-bg:#0E1722;
+}
+*{box-sizing:border-box;}
+body{font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg-body);color:var(--text-dark);margin:0;transition:background .2s ease,color .2s ease;}
+h1,h2,h3,h4,h5,.brand-font{font-family:'Manrope',sans-serif;}
+.d-none{display:none!important;}
+
+/* ---------- Landing / Upload ---------- */
+#uploadScreen,#mappingScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+.upload-card{background:var(--card-bg);border-radius:18px;box-shadow:0 10px 40px rgba(15,33,54,0.08);padding:40px;width:100%;max-width:640px;border:1px solid var(--border);}
+.upload-card.wide{max-width:960px;}
+.brand-logo{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+.brand-logo .mark{width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-dark));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-family:'Manrope',sans-serif;font-size:18px;}
+.dropzone{border:2px dashed var(--border);border-radius:14px;padding:48px 20px;text-align:center;cursor:pointer;transition:all .2s ease;background:var(--input-bg);}
+.dropzone:hover,.dropzone.dragover{border-color:var(--accent);background:rgba(16,185,129,.08);}
+.dropzone .icon{font-size:38px;margin-bottom:10px;}
+.step-pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--accent-dark);background:rgba(16,185,129,.12);padding:4px 12px;border-radius:20px;letter-spacing:.03em;text-transform:uppercase;}
+.map-row{display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--border);}
+.map-row:last-child{border-bottom:none;}
+.map-label{width:220px;font-weight:600;font-size:14px;flex-shrink:0;color:var(--text-dark);}
+.map-label .req{color:var(--danger);}
+.preview-table{font-size:12px;color:var(--text-dark);}
+.preview-table th{background:var(--input-bg);white-space:nowrap;}
+.preview-table td{white-space:nowrap;}
+select,.form-select,.form-control{background:var(--input-bg)!important;color:var(--text-dark)!important;border-color:var(--border)!important;}
+
+/* ---------- Dashboard shell ---------- */
+#dashboardScreen{display:flex;min-height:100vh;}
+.sidebar{width:230px;flex-shrink:0;background:var(--sidebar-bg);color:#CBD5E1;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;transition:background .2s ease;}
+.sidebar .brand{padding:20px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.08);}
+.sidebar .brand .mark{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent-dark));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px;flex-shrink:0;}
+.sidebar .brand .name{font-family:'Manrope',sans-serif;font-weight:700;font-size:15px;color:#fff;line-height:1.2;}
+.sidebar .brand .name small{display:block;font-weight:400;font-size:11px;color:#8FA1B5;}
+.nav-scroll{flex:1;overflow-y:auto;padding:14px 10px;}
+.nav-section-label{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:#5D7189;padding:14px 10px 6px;font-weight:700;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;font-size:13.5px;font-weight:600;cursor:pointer;color:#B9C6D6;margin-bottom:2px;transition:all .15s ease;user-select:none;}
+.nav-item .ic{font-size:15px;width:18px;text-align:center;}
+.nav-item:hover{background:var(--sidebar-bg-hover);color:#fff;}
+.nav-item.active{background:var(--accent);color:#04231A;font-weight:700;}
+.sidebar-foot{padding:12px 16px;border-top:1px solid rgba(255,255,255,.08);font-size:11px;color:#6C8098;}
+.sidebar-foot .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block;margin-right:5px;}
+
+.main-area{flex:1;min-width:0;display:flex;flex-direction:column;}
+.topbar{background:var(--card-bg);border-bottom:1px solid var(--border);padding:12px 22px;position:sticky;top:0;z-index:20;}
+.topbar-title{font-family:'Manrope',sans-serif;font-weight:800;font-size:19px;margin:0;color:var(--text-dark);}
+.topbar-sub{font-size:12px;color:var(--text-muted);}
+.filter-bar{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;align-items:center;}
+.clear-btn{font-size:12px;color:var(--danger);background:none;border:none;font-weight:600;cursor:pointer;}
+.theme-toggle{border:1px solid var(--border);background:var(--input-bg);color:var(--text-dark);border-radius:20px;padding:6px 12px;font-size:12.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
+
+/* multi-select dropdown */
+.msel{position:relative;display:inline-block;}
+.msel-btn{font-size:12.5px;padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);min-width:120px;font-weight:600;color:var(--text-dark);cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.msel-btn:after{content:'▾';font-size:10px;color:var(--text-muted);}
+.msel-panel{position:absolute;top:calc(100% + 6px);left:0;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.12);min-width:200px;max-height:260px;overflow-y:auto;z-index:60;padding:8px;display:none;}
+.msel.open .msel-panel{display:block;}
+.msel-opt{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;font-size:12.5px;cursor:pointer;color:var(--text-dark);}
+.msel-opt:hover{background:var(--input-bg);}
+.msel-opt input{margin:0;}
+.msel-foot{display:flex;justify-content:space-between;padding:6px 8px 2px;border-top:1px solid var(--border);margin-top:4px;}
+.msel-foot button{font-size:11px;border:none;background:none;color:var(--accent-dark);font-weight:700;cursor:pointer;}
+
+.content-area{padding:20px 22px 28px;flex:1;}
+.tab-pane{display:none;}
+.tab-pane.active{display:block;animation:fadeIn .3s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.row.g-3{--bs-gutter-y:1rem;}
+
+.kpi-card{background:var(--card-bg);border-radius:16px;padding:16px 18px 16px 16px;border:1px solid var(--border);height:100%;position:relative;overflow:hidden;box-shadow:0 2px 10px rgba(15,33,54,.04);transition:box-shadow .2s ease,transform .2s ease;}
+.kpi-card:hover{box-shadow:0 8px 24px rgba(15,33,54,.08);transform:translateY(-1px);}
+.kpi-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--accent),var(--accent-dark));border-radius:4px 0 0 4px;}
+.kpi-card .kpi-label{font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding-left:8px;}
+.kpi-card .kpi-value{font-family:'Manrope',sans-serif;font-weight:800;font-size:20px;margin-top:6px;color:var(--text-dark);padding-left:8px;line-height:1.2;}
+.kpi-card .kpi-delta{font-size:11.5px;font-weight:700;margin-top:6px;padding-left:8px;}
+.kpi-delta.up{color:var(--accent-dark);}
+.kpi-delta.down{color:var(--danger);}
+
+.panel{background:var(--card-bg);border-radius:16px;border:1px solid var(--border);padding:0;margin-bottom:20px;box-shadow:0 2px 12px rgba(15,33,54,.04);overflow:hidden;}
+.panel h6{font-family:'Manrope',sans-serif;font-weight:700;font-size:13.5px;margin:0;padding:14px 18px;display:flex;align-items:center;gap:8px;color:var(--text-dark);border-bottom:1px solid var(--border);background:linear-gradient(180deg,var(--card-bg),var(--input-bg));}
+.panel h6 .panel-badge{margin-left:auto;font-size:10px;font-weight:700;background:rgba(16,185,129,.12);color:var(--accent-dark);padding:3px 10px;border-radius:20px;letter-spacing:.02em;}
+.panel > [id^="chart-"]{padding:10px 12px 4px;}
+.panel > .table-responsive{padding:4px 14px 14px;}
+.panel > .empty-note{padding:40px 14px;}
+.panel > ul, .panel > .d-flex, .panel > div:not([id^="chart-"]):not(.table-responsive):not(.empty-note){padding:14px 18px;}
+
+.ai-summary{background:linear-gradient(135deg,#0B1A2B 0%,#14304A 50%,#0F2740 100%);color:#E7EEF6;border-radius:16px;padding:20px 22px;margin-bottom:0;position:relative;overflow:hidden;border:1px solid rgba(16,185,129,.15);box-shadow:0 8px 28px rgba(15,33,54,.18);}
+.ai-summary::before{content:"";position:absolute;top:-40px;right:-20px;width:140px;height:140px;background:radial-gradient(circle,rgba(16,185,129,.4),transparent 70%);}
+.ai-summary::after{content:"";position:absolute;bottom:-30px;left:20%;width:100px;height:100px;background:radial-gradient(circle,rgba(59,130,246,.2),transparent 70%);}
+.ai-summary h6{color:#fff;font-family:'Manrope',sans-serif;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px;position:relative;z-index:1;}
+.ai-summary ul{margin:0;padding-left:18px;position:relative;z-index:1;}
+.ai-summary li{font-size:13.5px;line-height:1.7;margin-bottom:8px;color:#DCE6F0;}
+.ai-summary li b{color:#34D399;}
+.ai-generate-wrap{text-align:center;padding:28px 14px;background:var(--card-bg);border:1.5px dashed var(--border);border-radius:16px;transition:border-color .2s;}
+.ai-generate-wrap:hover{border-color:var(--accent);}
+.btn-generate-ai{background:linear-gradient(135deg,var(--accent),var(--accent-dark));border:none;color:#04231A;font-weight:800;padding:11px 28px;border-radius:30px;font-size:13.5px;cursor:pointer;box-shadow:0 6px 20px rgba(16,185,129,.35);transition:transform .15s,box-shadow .15s;}
+.btn-generate-ai:hover{opacity:.95;transform:translateY(-1px);box-shadow:0 8px 24px rgba(16,185,129,.4);}
+.btn-generate-ai:disabled{opacity:.6;cursor:default;transform:none;}
+
+.table-mini{font-size:12.8px;color:var(--text-dark);}
+.table-mini thead th{background:var(--input-bg);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.03em;color:var(--text-muted);white-space:nowrap;padding:10px 12px!important;}
+.table-mini tbody tr:hover{background:rgba(16,185,129,.04);}
+.table-mini td, .table-mini th{border-color:var(--border)!important;padding:9px 12px!important;}
+.badge-achieved{background:rgba(16,185,129,.15);color:var(--accent-dark);font-weight:700;padding:4px 10px;border-radius:20px;font-size:11px;}
+.badge-pending{background:rgba(245,158,11,.15);color:var(--warn);font-weight:700;padding:4px 10px;border-radius:20px;font-size:11px;}
+
+.empty-note{text-align:center;padding:48px 16px;color:var(--text-muted);font-size:13.5px;}
+.saved-card{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:16px 18px;margin-bottom:14px;box-shadow:0 2px 10px rgba(15,33,54,.04);transition:box-shadow .2s;}
+.saved-card:hover{box-shadow:0 6px 20px rgba(15,33,54,.08);}
+.saved-card .chip{font-size:11px;background:var(--input-bg);color:var(--text-muted);padding:3px 10px;border-radius:20px;margin-right:5px;display:inline-block;margin-bottom:4px;border:1px solid var(--border);}
+.btn-accent{background:var(--accent);border-color:var(--accent);color:#04231A;font-weight:700;}
+.btn-accent:hover{background:var(--accent-dark);border-color:var(--accent-dark);color:#fff;}
+.btn-outline-accent{border-color:var(--accent);color:var(--accent-dark);font-weight:700;}
+.btn-outline-accent:hover{background:var(--accent);color:#04231A;}
+.hamburger{display:none;}
+@media (max-width:900px){
+  .sidebar{position:fixed;left:-240px;z-index:50;transition:left .25s ease;box-shadow:0 0 40px rgba(0,0,0,.3);}
+  .sidebar.open{left:0;}
+  .hamburger{display:inline-flex;}
+  .main-area{width:100%;}
+}
+.mobile-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:40;display:none;}
+.mobile-overlay.show{display:block;}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
+
+/* custom modal (no bootstrap JS dependency) */
+.cmodal-overlay{position:fixed;inset:0;background:rgba(5,10,18,.55);z-index:100;display:none;align-items:center;justify-content:center;}
+.cmodal-overlay.show{display:flex;}
+.cmodal-box{background:var(--card-bg);border-radius:14px;padding:22px;width:100%;max-width:420px;border:1px solid var(--border);box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.cmodal-box h6{font-weight:800;margin-bottom:14px;color:var(--text-dark);}
+.cmodal-box .form-control{margin-bottom:6px;}
+.cmodal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;}
+
+/* toast */
+#toastHost{position:fixed;bottom:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:10px;}
+.toast-item{background:var(--sidebar-bg);color:#fff;padding:12px 18px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.25);display:flex;align-items:center;gap:8px;animation:toastIn .25s ease;}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* compare tab */
+.compare-pick{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;}
+.compare-chip{background:var(--input-bg);border:1px solid var(--border);border-radius:20px;padding:6px 12px;font-size:12px;font-weight:600;color:var(--text-dark);cursor:pointer;}
+.compare-chip.selected{background:var(--accent);color:#04231A;border-color:var(--accent);}
+</style>
+</head>
+<body>
+
+<div id="toastHost"></div>
+
+<!-- ============ SCREEN 1: UPLOAD ============ -->
+<div id="uploadScreen">
+  <div class="upload-card">
+    <div class="brand-logo">
+      <div class="mark">ERP</div>
+      <div><div class="brand-font" style="font-weight:800;font-size:20px;">Test Purpose ERP</div>
+      <div style="font-size:12px;color:var(--text-muted);">Sales Analytics ERP</div></div>
+    </div>
+    <span class="step-pill">Step 1 of 3 · Upload data</span>
+    <h4 class="mt-3 mb-1" style="font-weight:800;">Upload your sales CSV</h4>
+    <p style="color:var(--text-muted);font-size:13.5px;">Drop your monthly sales export below. Nothing leaves your browser — everything is processed locally.</p>
+    <div class="dropzone" id="dropzone">
+      <div class="icon">📂</div>
+      <div style="font-weight:700;">Click to browse or drag & drop CSV here</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">.csv files only</div>
+      <input type="file" id="fileInput" accept=".csv" class="d-none">
+    </div>
+    <div style="text-align:center;margin-top:16px;">
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">— or try with demo data —</div>
+      <button type="button" class="btn btn-outline-success btn-sm px-4" id="loadSampleBtn" style="font-weight:700;border-radius:20px;">
+        ✨ Load Sample Sales Data
+      </button>
+    </div>
+    <div id="uploadError" class="alert alert-danger mt-3 d-none" style="font-size:13px;"></div>
+    <div id="uploadStatus" class="mt-3 d-none">
+      <div class="d-flex align-items-center gap-2" style="font-size:13.5px;">
+        <span style="color:var(--accent-dark);">✔</span><span id="uploadStatusText"></span>
+      </div>
+    </div>
+    <div style="text-align: center; font-synthesis: small-caps; font-style: italic;margin-top:12px;">Powerd by Shafayet</div>
+  </div>
+</div>
+
+<!-- ============ SCREEN 2: MAPPING ============ -->
+<div id="mappingScreen" class="d-none">
+  <div class="upload-card wide">
+    <span class="step-pill">Step 2 of 3 · Map columns</span>
+    <h4 class="mt-3 mb-1" style="font-weight:800;">Map your columns</h4>
+    <p style="color:var(--text-muted);font-size:13.5px;">Tell the dashboard which column corresponds to each field. We've auto-detected what we could — please review.</p>
+    <div class="row">
+      <div class="col-md-6"><div id="mapRequired"></div></div>
+      <div class="col-md-6"><div id="mapOptional"></div></div>
+    </div>
+    <div class="mt-3">
+      <div style="font-weight:700;font-size:13px;margin-bottom:8px;">Data preview (first 5 rows)</div>
+      <div class="table-responsive" style="max-height:220px;"><table class="table table-sm preview-table" id="previewTable"></table></div>
+    </div>
+    <div id="mapError" class="alert alert-danger mt-3 d-none" style="font-size:13px;"></div>
+    <div class="d-flex justify-content-between mt-3">
+      <button class="btn btn-outline-secondary" id="backToUploadBtn">&larr; Back</button>
+      <button class="btn btn-accent px-4" id="generateBtn">Generate Dashboard →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SCREEN 3: DASHBOARD ============ -->
+<div class="mobile-overlay" id="mobileOverlay"></div>
+<div id="dashboardScreen" class="d-none">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand"><div class="mark">ERP</div><div class="name">Sales Purpose ERP<small>Sales Analytics ERP</small></div></div>
+    <div class="nav-scroll">
+      <div class="nav-section-label">Insights</div>
+      <div class="nav-item active" data-tab="overview"><span class="ic">🏠</span> Overview</div>
+      <div class="nav-item" data-tab="monthly"><span class="ic">📅</span> Monthly Trend</div>
+      <div class="nav-item" data-tab="category"><span class="ic">🏷️</span> Category</div>
+      <div class="nav-item" data-tab="brand"><span class="ic">🏭</span> Brand</div>
+      <div class="nav-item" data-tab="region"><span class="ic">🌍</span> Region &amp; Channel</div>
+      <div class="nav-section-label">Performance</div>
+      <div class="nav-item" data-tab="yoy"><span class="ic">📈</span> YoY Comparison</div>
+      <div class="nav-item" data-tab="mom"><span class="ic">📉</span> MoM Comparison</div>
+      <div class="nav-item" data-tab="growth"><span class="ic">➕</span> +/- Growth</div>
+      <div class="nav-item" data-tab="achievement"><span class="ic">🎯</span> Achievement</div>
+      <div class="nav-item" data-tab="compare"><span class="ic">⚖️</span> Compare</div>
+      <div class="nav-section-label">Data</div>
+      <div class="nav-item" data-tab="explorer"><span class="ic">🗂️</span> Data Explorer</div>
+      <div class="nav-item" data-tab="saved"><span class="ic">💾</span> Saved Reports</div>
+    </div>
+    <div class="sidebar-foot">
+      <span class="dot"></span><span id="sidebarRowCount">0 rows loaded</span>
+      <div class="mt-2"><a href="#" id="newUploadLink" style="color:#8FA1B5;">↺ Upload new file</a></div>
+    </div>
+  </aside>
+
+  <div class="main-area">
+    <div class="topbar">
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-2">
+          <button class="btn btn-sm btn-outline-secondary hamburger" id="hamburgerBtn">☰</button>
+          <div><h5 class="topbar-title" id="topbarTitle">Overview</h5><div class="topbar-sub" id="topbarSub">All periods · All categories</div></div>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+          <button class="theme-toggle" id="themeToggleBtn">🌙 Dark</button>
+          <button class="btn btn-sm btn-outline-accent" id="saveReportBtn">💾 Save Report</button>
+          <button class="btn btn-sm btn-outline-secondary" id="downloadHtmlBtn">📄 Save as HTML</button>
+        </div>
+      </div>
+      <div class="filter-bar" id="filterBar"><!-- multiselects injected by JS --></div>
+    </div>
+    <div class="content-area" id="contentArea"><!-- tab panes injected by JS --></div>
+  </div>
+</div>
+
+<!-- Save Report custom modal -->
+<div class="cmodal-overlay" id="saveReportModal">
+  <div class="cmodal-box">
+    <h6>Save Report to Archive</h6>
+    <label class="form-label" style="font-size:13px;font-weight:600;">Report name</label>
+    <input type="text" class="form-control" id="reportNameInput" placeholder="e.g. July 2026 Sales Snapshot">
+    <div style="font-size:12px;color:var(--text-muted);margin-top:6px;">Saves the current filters, KPIs and AI summary as a static snapshot you can revisit later.</div>
+    <div class="cmodal-actions">
+      <button class="btn btn-secondary btn-sm" id="cancelSaveReportBtn">Cancel</button>
+      <button class="btn btn-accent btn-sm" id="confirmSaveReportBtn">Save</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>(function(){
+"use strict";
+
+/* ================= STATE ================= */
+var rawHeaders = [], rawRows = [], data = [], mapping = {};
+var filters = {year:['all'],month:['all'],category:['all'],brand:['all'],region:['all'],channel:['all'],status:['all']};
+var charts = {};
+var activeTab = 'overview';
+var summaryCache = {};      // tabKey -> array of lines (freshly computed on each render)
+var summaryShown = {};      // tabKey -> bool, whether user has clicked Generate for the CURRENT render
+var openFilterKey = null;
+var compareSelected = [];
+var compareDim = 'category';
+
+var FIELD_DEFS = [
+  {key:'year',label:'Year',required:true,hints:['year']},
+  {key:'month',label:'Month / Period Label',required:true,hints:['month name','month']},
+  {key:'salesValue',label:'Sales Value',required:true,hints:['sales value','value']},
+  {key:'salesQty',label:'Sales Qty',required:false,hints:['sales qty','qty']},
+  {key:'monthSort',label:'Month Sort Key',required:false,hints:['month no']},
+  {key:'category',label:'Category',required:false,hints:['category']},
+  {key:'brand',label:'Brand',required:false,hints:['brand']},
+  {key:'region',label:'Region',required:false,hints:['region']},
+  {key:'channel',label:'Channel',required:false,hints:['channel']},
+  {key:'targetQty',label:'Target Qty',required:false,hints:['target qty']},
+  {key:'targetValue',label:'Target Value',required:false,hints:['target value']},
+  {key:'achievement',label:'Achievement %',required:false,hints:['achievement']},
+  {key:'growth',label:'Growth %',required:false,hints:['growth']},
+  {key:'status',label:'Status',required:false,hints:['status']},
+  {key:'item',label:'Item / Product Name',required:false,hints:['item']}
+];
+var MONTH_IDX = {jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
+
+/* ================= HELPERS ================= */
+function toNum(v){ if(v===null||v===undefined||v==='') return 0; if(typeof v==='number') return v; var s=String(v).replace(/[^0-9.\-]/g,''); var n=parseFloat(s); return isNaN(n)?0:n; }
+function toYear(v){ if(v===null||v===undefined) return null; var n=parseInt(String(v).trim(),10); return isNaN(n)?null:n; }
+function fmtMoney(n){
+  if(n===null||n===undefined||isNaN(n)) return '—';
+  var neg = n<0, a = Math.abs(n), out;
+  if(a>=1e7) out = '৳'+trimZero((a/1e7).toFixed(2))+'Cr';
+  else if(a>=1e5) out = '৳'+trimZero((a/1e5).toFixed(2))+'L';
+  else if(a>=1e3) out = '৳'+trimZero((a/1e3).toFixed(1))+'K';
+  else out = '৳'+Math.round(a).toLocaleString('en-IN');
+  return neg ? '('+out+')' : out;
+}
+function trimZero(s){ return s.replace(/\.00?$/,'').replace(/(\.\d)0$/,'$1'); }
+function fmtMoneyFull(n){ if(n===null||n===undefined||isNaN(n)) return '—'; var neg=n<0,a=Math.abs(n); var out='৳'+Math.round(a).toLocaleString('en-IN'); return neg?'('+out+')':out; }
+function fmtNum(n){ return (n===null||n===undefined||isNaN(n)) ? '—' : Math.round(n).toLocaleString('en-IN'); }
+function fmtPct(n){ return (n===null||n===undefined||isNaN(n)) ? '—' : (n>=0?'+':'') + n.toFixed(1) + '%'; }
+function monthIdxFromLabel(label){ if(!label) return 0; var key=String(label).trim().toLowerCase().slice(0,3); return MONTH_IDX[key]||0; }
+/* Build display period like Jan-24 from month label + year. Keeps existing Jan-24 / Jan 2024 as-is. */
+function formatPeriodLabel(monthLabel, year){
+  var raw = String(monthLabel||'').trim();
+  if(!raw) return '';
+  // already has year? e.g. Jan-24, Jan-2024, Jan 24, 2024-01
+  if(/\d{2,4}/.test(raw)) return raw;
+  var mon = raw.slice(0,3);
+  mon = mon.charAt(0).toUpperCase() + mon.slice(1).toLowerCase();
+  var yy = year ? String(year).slice(-2) : '';
+  return yy ? (mon + '-' + yy) : mon;
+}
+function groupBy(arr,fn){ var m={}; arr.forEach(function(r){ var k=fn(r); if(!m[k]) m[k]=[]; m[k].push(r); }); return m; }
+function sumField(arr,f){ return arr.reduce(function(a,b){ return a+(b[f]||0); },0); }
+function avgField(arr,f){ var v=arr.map(function(r){return r[f];}).filter(function(x){return x!==null&&x!==undefined&&!isNaN(x);}); if(!v.length) return null; return v.reduce(function(a,b){return a+b;},0)/v.length; }
+function uniqueSorted(arr){ return Array.from(new Set(arr)).filter(function(v){return v!==undefined&&v!==null&&v!=='';}).sort(); }
+// Returns unique period(month) labels found in `rows`, sorted chronologically (not alphabetically)
+// using each label's periodSortKey from the full dataset (falls back to month-name parsing).
+// Used for TREND charts / MoM where real time sequence matters (Jan-24, Feb-24, ... Dec-24, Jan-25, ...).
+function chronologicalPeriodLabels(rows){
+  var keyOf = {};
+  data.forEach(function(r){ if(!(r.period in keyOf)) keyOf[r.period] = r.periodSortKey; });
+  var labels = uniqueSorted(rows.map(function(r){return r.period;}));
+  return labels.sort(function(a,b){
+    var ka = keyOf[a]!==undefined ? keyOf[a] : monthIdxFromLabel(a);
+    var kb = keyOf[b]!==undefined ? keyOf[b] : monthIdxFromLabel(b);
+    return String(ka).localeCompare(String(kb), undefined, {numeric:true});
+  });
+}
+// Returns unique period(month) labels grouped by CALENDAR MONTH first, then year:
+// Jan-24, Jan-25, Feb-24, Feb-25, ... Dec-24, Dec-25. Used for selection lists (filter
+// dropdown, Compare picker) so every year of the same month sits together.
+function monthGroupedPeriodLabels(rows){
+  var meta = {};
+  data.forEach(function(r){ if(!(r.period in meta)) meta[r.period] = { m: monthIdxFromLabel(r.period), y: r.year }; });
+  var labels = uniqueSorted(rows.map(function(r){return r.period;}));
+  return labels.sort(function(a,b){
+    var ma = meta[a] || { m: monthIdxFromLabel(a), y: 0 };
+    var mb = meta[b] || { m: monthIdxFromLabel(b), y: 0 };
+    if(ma.m !== mb.m) return ma.m - mb.m;
+    return ma.y - mb.y;
+  });
+}
+// Reorders an already-aggregated `periods` array (from sortedPeriods, true chronological)
+// into calendar-month-grouped display order: Jan-24, Jan-25, Feb-24, Feb-25, ... Used only
+// for DISPLAY (trend charts/tables) — MoM keeps true chronological order since % change math
+// depends on real month-to-month adjacency.
+function reorderPeriodsMonthGrouped(periods){
+  var meta = {};
+  data.forEach(function(r){ if(!(r.period in meta)) meta[r.period] = { m: monthIdxFromLabel(r.period), y: r.year }; });
+  return periods.slice().sort(function(a,b){
+    var ma = meta[a.period] || { m: monthIdxFromLabel(a.period), y: 0 };
+    var mb = meta[b.period] || { m: monthIdxFromLabel(b.period), y: 0 };
+    if(ma.m !== mb.m) return ma.m - mb.m;
+    return ma.y - mb.y;
+  });
+}
+function destroyChart(id){
+  if(charts[id]){
+    try{ charts[id].dispose(); }catch(e){}
+    delete charts[id];
+  }
+}
+function cssVar(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+function renderChart(id, option){
+  destroyChart(id);
+  var el = document.getElementById(id);
+  if(!el) return;
+  if(typeof echarts === 'undefined'){
+    el.innerHTML = '<div class="empty-note">Chart library unavailable offline. Reconnect to the internet to view charts.</div>';
+    return;
+  }
+  var h = parseInt(el.style.minHeight, 10) || 300;
+  el.style.height = h + 'px';
+  el.innerHTML = '';
+  var chart = echarts.init(el, null, { renderer:'canvas' });
+  chart.setOption(option, true);
+  charts[id] = chart;
+}
+/* keep charts responsive */
+if(!window._echartsResizeBound){
+  window._echartsResizeBound = true;
+  window.addEventListener('resize', function(){
+    Object.keys(charts).forEach(function(k){ try{ charts[k].resize(); }catch(e){} });
+  });
+}
+/* ===== Apache ECharts — modern Theme Builder style ===== */
+/* Fresh modern palette (inspired by ECharts shine + contemporary SaaS dashboards) */
+var ECHARTS_PALETTE = ['#5470C6','#91CC75','#FAC858','#EE6666','#73C0DE','#3BA272','#FC8452','#9A60B4','#EA7CCC','#48B8D0'];
+function isDarkTheme(){ return document.documentElement.getAttribute('data-theme')==='dark'; }
+function statusColorMap(keys){
+  return keys.map(function(k){
+    var s = String(k).toLowerCase();
+    if(s.indexOf('achiev')>-1 || s.indexOf('done')>-1 || s.indexOf('complete')>-1) return '#91CC75';
+    if(s.indexOf('pend')>-1 || s.indexOf('progress')>-1) return '#FAC858';
+    return '#EE6666';
+  });
+}
+function eTheme(){
+  var dark = isDarkTheme();
+  return {
+    dark: dark,
+    text: dark ? '#94A3B8' : '#64748B',
+    textStrong: dark ? '#F1F5F9' : '#0F172A',
+    axisLine: dark ? '#1E293B' : '#E2E8F0',
+    splitLine: dark ? '#1E293B' : '#F1F5F9',
+    tooltipBg: dark ? 'rgba(15,23,42,0.95)' : 'rgba(255,255,255,0.98)',
+    tooltipBorder: dark ? '#334155' : '#E2E8F0',
+    labelBg: dark ? 'rgba(15,23,42,0.92)' : 'rgba(255,255,255,0.96)',
+    card: dark ? '#111B27' : '#FFFFFF'
+  };
+}
+/* One consistent small data-label style for ALL charts */
+function eLabel(opts){
+  opts = opts || {};
+  var t = eTheme();
+  return {
+    show: opts.show !== false,
+    position: opts.position || 'top',
+    distance: opts.distance != null ? opts.distance : 4,
+    color: opts.color || (t.dark ? '#E2E8F0' : '#1E293B'),
+    fontSize: opts.fontSize || 9,
+    fontWeight: 600,
+    textBorderColor: t.dark ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.95)',
+    textBorderWidth: 2,
+    formatter: opts.formatter
+  };
+}
+function eBase(){
+  var t = eTheme();
+  return {
+    color: ECHARTS_PALETTE.slice(),
+    textStyle: { fontFamily: 'Inter, Manrope, sans-serif', color: t.text },
+    animationDuration: 800,
+    animationEasing: 'cubicOut',
+    grid: { left: 58, right: 18, top: 42, bottom: 52, containLabel: false },
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: t.tooltipBg,
+      borderColor: t.tooltipBorder,
+      borderWidth: 1,
+      textStyle: { color: t.textStrong, fontSize: 12, fontWeight: 500 },
+      extraCssText: 'border-radius:12px;box-shadow:0 10px 28px rgba(15,23,42,.12);padding:10px 14px;'
+    },
+    legend: {
+      bottom: 2, left: 'center',
+      itemWidth: 10, itemHeight: 10, icon: 'roundRect',
+      itemGap: 16,
+      textStyle: { color: t.text, fontSize: 12, fontWeight: 600 }
+    }
+  };
+}
+
+/* ---------- BAR (multi-series safe labels) ---------- */
+function barOpts(cfg){
+  cfg = cfg || {};
+  var t = eTheme();
+  var cats = cfg.categories || [];
+  var seriesIn = cfg.series || [];
+  var distributed = !!cfg.distributed;
+  var isPct = !!cfg.isPct;
+  var dense = cats.length > 12;
+  var multi = seriesIn.length > 1;
+  var colors = cfg.colors || ECHARTS_PALETTE;
+
+  var series = seriesIn.map(function(s, si){
+    var data = (s.data || []).map(function(v, i){
+      if(!distributed) return v;
+      return { value: v, itemStyle: { color: colors[i % colors.length], borderRadius: [6,6,2,2] } };
+    });
+    // Both series get labels: first on top, second inside bar
+    return {
+      name: s.name || ('Series '+(si+1)),
+      type: 'bar',
+      data: data,
+      barMaxWidth: dense ? 22 : (multi ? 28 : 40),
+      barGap: multi ? '20%' : '30%',
+      itemStyle: {
+        borderRadius: [6,6,2,2],
+        color: distributed ? undefined : {
+          type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+          colorStops: [
+            { offset: 0, color: colors[si % colors.length] },
+            { offset: 1, color: colors[si % colors.length] + 'CC' }
+          ]
+        }
+      },
+      emphasis: {
+        focus: 'series',
+        itemStyle: { shadowBlur: 10, shadowColor: 'rgba(84,112,198,0.25)' }
+      },
+      label: eLabel({
+        position: 'top',
+        distance: 4,
+        fontSize: dense ? 8 : 9,
+        formatter: function(p){
+          var v = p.value;
+          if(v && typeof v === 'object') v = v.value;
+          if(v===null||v===undefined||v===0||isNaN(v)) return '';
+          // multi-series: show every label but skip alternate when dense to reduce clutter
+          if(multi && dense && (p.dataIndex % 2)!==0 && si > 0) return '';
+          if(dense && cats.length > 18 && (p.dataIndex % 2)!==0) return '';
+          return isPct ? (Number(v).toFixed(0)+'%') : fmtMoney(v);
+        }
+      })
+    };
+  });
+
+  var opt = Object.assign(eBase(), {
+    color: colors,
+    legend: Object.assign({}, eBase().legend, {
+      show: multi && !distributed,
+      top: 6, bottom: 'auto', left: 'auto', right: 10, orient: 'horizontal'
+    }),
+    grid: {
+      left: 58, right: 14,
+      top: (multi && !distributed) ? 52 : 36,
+      bottom: dense ? 68 : 42,
+      containLabel: false
+    },
+    xAxis: {
+      type: 'category', data: cats,
+      axisLine: { lineStyle: { color: t.axisLine, width: 1 } },
+      axisTick: { show: false },
+      axisLabel: {
+        color: t.text, fontSize: dense ? 9.5 : 11, fontWeight: 600,
+        rotate: dense ? 40 : 0, hideOverlap: true, interval: dense && cats.length > 20 ? 1 : 0
+      }
+    },
+    yAxis: {
+      type: 'value',
+      axisLine: { show: false },
+      axisTick: { show: false },
+      splitLine: { lineStyle: { color: t.splitLine, type: 'dashed' } },
+      axisLabel: {
+        color: t.text, fontSize: 11,
+        formatter: isPct ? function(v){ return v+'%'; } : function(v){ return fmtMoney(v); }
+      }
+    },
+    series: series,
+    tooltip: Object.assign({}, eBase().tooltip, {
+      trigger: 'axis',
+      axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(84,112,198,0.06)' } },
+      formatter: function(params){
+        if(!params || !params.length) return '';
+        var html = '<div style="font-weight:700;margin-bottom:8px;font-size:12px;">'+params[0].axisValueLabel+'</div>';
+        params.forEach(function(p){
+          var v = p.value;
+          if(v && typeof v === 'object') v = v.value;
+          var shown = isPct ? (Number(v).toFixed(1)+'%') : fmtMoneyFull(v);
+          html += '<div style="display:flex;align-items:center;gap:8px;margin:4px 0;">'+
+            '<span style="width:9px;height:9px;border-radius:3px;background:'+p.color+';display:inline-block;"></span>'+
+            '<span style="flex:1">'+p.seriesName+'</span>'+
+            '<b style="margin-left:12px">'+shown+'</b></div>';
+        });
+        return html;
+      }
+    })
+  });
+
+  if(cfg.annotations && cfg.annotations.yaxis){
+    var mark = cfg.annotations.yaxis[0];
+    if(mark && series[0]){
+      series[0].markLine = {
+        symbol: 'none',
+        silent: true,
+        label: {
+          formatter: (mark.label && mark.label.text) || 'Target',
+          color: '#fff', backgroundColor: mark.borderColor || '#EE6666',
+          padding: [4, 8], borderRadius: 4, fontSize: 10, fontWeight: 700
+        },
+        lineStyle: { color: mark.borderColor || '#EE6666', type: 'dashed', width: 1.5 },
+        data: [{ yAxis: mark.y }]
+      };
+    }
+  }
+  return opt;
+}
+
+/* ---------- LINE / AREA with markPoint ---------- */
+function lineOpts(cfg){
+  cfg = cfg || {};
+  var t = eTheme();
+  var cats = cfg.categories || [];
+  var seriesIn = cfg.series || [];
+  var isArea = cfg.type !== 'line';
+  var dense = cats.length > 14;
+  var step = dense ? 2 : 1;
+  var colors = cfg.colors || ECHARTS_PALETTE;
+
+  var series = seriesIn.map(function(s, si){
+    var color = colors[si % colors.length];
+    var data = s.data || [];
+    var ser = {
+      name: s.name || ('Series '+(si+1)),
+      type: 'line',
+      data: data,
+      smooth: 0.4,
+      symbol: 'circle',
+      symbolSize: dense ? 7 : 9,
+      showSymbol: true,
+      lineStyle: { width: 3, color: color, shadowColor: color+'44', shadowBlur: 6 },
+      itemStyle: {
+        color: color,
+        borderColor: '#fff',
+        borderWidth: 2,
+        shadowColor: color+'55',
+        shadowBlur: 4
+      },
+      areaStyle: isArea ? {
+        color: {
+          type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+          colorStops: [
+            { offset: 0, color: color + '55' },
+            { offset: 0.7, color: color + '18' },
+            { offset: 1, color: color + '00' }
+          ]
+        }
+      } : undefined,
+      emphasis: {
+        focus: 'series',
+        scale: true,
+        itemStyle: { borderWidth: 3, shadowBlur: 8 }
+      },
+      // One consistent small label style
+      label: eLabel({
+        position: 'top',
+        distance: 5,
+        fontSize: dense ? 8 : 9,
+        formatter: function(p){
+          if(cfg.labelFormatter){
+            try {
+              var out = cfg.labelFormatter(p, p);
+              if(out !== undefined && out !== null) return out;
+            } catch(e){}
+            try {
+              var out2 = cfg.labelFormatter(p.value, { dataPointIndex: p.dataIndex, dataIndex: p.dataIndex });
+              if(out2 !== undefined && out2 !== null) return out2;
+            } catch(e2){}
+          }
+          if(p.value===null||p.value===undefined||isNaN(p.value)) return '';
+          if(cats.length > 20 && (p.dataIndex % 2)!==0) return '';
+          return fmtMoney(p.value);
+        }
+      }),
+      markLine: si === 0 ? {
+        silent: true,
+        symbol: 'none',
+        lineStyle: { type: 'dashed', width: 1, color: t.axisLine },
+        label: { formatter: 'Avg {c}', fontSize: 10, color: t.text },
+        data: [{ type: 'average', name: 'Avg' }]
+      } : undefined
+    };
+    return ser;
+  });
+
+  return Object.assign(eBase(), {
+    color: colors,
+    legend: Object.assign({}, eBase().legend, {
+      show: series.length > 1, top: 6, bottom: 'auto', left: 'auto', right: 10
+    }),
+    grid: {
+      left: 58, right: 22,
+      top: series.length > 1 ? 48 : 36,
+      bottom: dense ? 68 : 48,
+      containLabel: false
+    },
+    xAxis: {
+      type: 'category', data: cats, boundaryGap: false,
+      axisLine: { lineStyle: { color: t.axisLine } },
+      axisTick: { show: false },
+      axisLabel: {
+        color: t.text, fontSize: 10.5, fontWeight: 600,
+        rotate: dense ? 40 : 0, hideOverlap: true
+      }
+    },
+    yAxis: {
+      type: 'value',
+      axisLine: { show: false }, axisTick: { show: false },
+      splitLine: { lineStyle: { color: t.splitLine, type: 'dashed' } },
+      axisLabel: { color: t.text, fontSize: 11, formatter: function(v){ return fmtMoney(v); } }
+    },
+    series: series,
+    tooltip: Object.assign({}, eBase().tooltip, {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'cross',
+        crossStyle: { color: t.text },
+        lineStyle: { color: colors[0], type: 'dashed', width: 1 }
+      },
+      formatter: function(params){
+        if(!params || !params.length) return '';
+        var html = '<div style="font-weight:700;margin-bottom:8px;">📅 '+params[0].axisValueLabel+'</div>';
+        params.forEach(function(p){
+          html += '<div style="display:flex;align-items:center;gap:8px;margin:4px 0;">'+
+            '<span style="width:9px;height:9px;border-radius:50%;background:'+p.color+';display:inline-block;"></span>'+
+            '<span style="flex:1">'+p.seriesName+'</span>'+
+            '<b>'+fmtMoneyFull(p.value)+'</b></div>';
+        });
+        return html;
+      }
+    })
+  });
+}
+
+/* ---------- DONUT / PIE ---------- */
+function donutOpts(series, labels, extra){
+  extra = extra || {};
+  var t = eTheme();
+  var isCount = !!extra.isCount;
+  var colors = extra.colors || ECHARTS_PALETTE;
+  var total = (series || []).reduce(function(a,b){ return a + (Number(b)||0); }, 0);
+  var data = (labels || []).map(function(lab, i){
+    return {
+      name: lab, value: series[i] || 0,
+      itemStyle: {
+        color: colors[i % colors.length],
+        borderRadius: 8,
+        borderColor: t.card,
+        borderWidth: 3
+      }
+    };
+  });
+  return Object.assign(eBase(), {
+    color: colors,
+    tooltip: Object.assign({}, eBase().tooltip, {
+      trigger: 'item',
+      formatter: function(p){
+        var v = isCount ? (p.value + ' records') : fmtMoneyFull(p.value);
+        return p.marker+' <b>'+p.name+'</b><br/>'+v+' &nbsp;·&nbsp; <b>'+p.percent+'%</b>';
+      }
+    }),
+    legend: {
+      bottom: 4, left: 'center',
+      itemWidth: 10, itemHeight: 10, icon: 'circle', itemGap: 14,
+      textStyle: { color: t.text, fontSize: 11.5, fontWeight: 600 },
+      formatter: function(name){
+        var item = data.find(function(d){ return d.name === name; });
+        if(!item || !total) return name;
+        return name + '  ·  ' + (item.value/total*100).toFixed(0) + '%';
+      }
+    },
+    series: [{
+      type: 'pie',
+      radius: ['46%', '70%'],
+      center: ['50%', '45%'],
+      avoidLabelOverlap: true,
+      padAngle: 2,
+      itemStyle: { borderRadius: 8, borderColor: t.card, borderWidth: 3 },
+      label: {
+        show: true,
+        position: 'outside',
+        formatter: function(p){ return p.percent >= 4 ? p.percent.toFixed(0)+'%' : ''; },
+        color: t.dark ? '#E2E8F0' : '#1E293B',
+        fontSize: 10, fontWeight: 600,
+        textBorderColor: t.dark ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.95)',
+        textBorderWidth: 2
+      },
+      labelLine: {
+        show: true, length: 12, length2: 8,
+        lineStyle: { color: t.dark ? '#64748B' : '#94A3B8', width: 1 }
+      },
+      emphasis: {
+        scale: true, scaleSize: 8,
+        itemStyle: { shadowBlur: 16, shadowColor: 'rgba(0,0,0,0.18)' },
+        label: { show: true, fontSize: 14, fontWeight: 800 }
+      },
+      data: data
+    }],
+    graphic: [{
+      type: 'group', left: 'center', top: '36%',
+      children: [
+        {
+          type: 'text',
+          style: {
+            text: extra.centerLabel || (isCount ? 'Records' : 'Total'),
+            fill: t.text, fontSize: 11, fontWeight: 600,
+            textAlign: 'center', textVerticalAlign: 'middle'
+          },
+          left: 'center', top: 0
+        },
+        {
+          type: 'text',
+          style: {
+            text: isCount ? total.toLocaleString('en-IN') : fmtMoney(total),
+            fill: t.textStrong, fontSize: 17, fontWeight: 800,
+            textAlign: 'center', textVerticalAlign: 'middle'
+          },
+          left: 'center', top: 16
+        }
+      ]
+    }]
+  });
+}
+
+function baseChartOpts(){ return eBase(); }
+function dlMoney(){ return {}; }
+function dlPct(){ return {}; }
+function dlDonut(){ return {}; }
+function dlLineResponsive(){ return {}; }
+
+function downloadCSV(rows, filename){
+  if(!rows || !rows.length){ showToast('⚠️ No data to export for the current filters.'); return; }
+  var headers = Object.keys(rows[0]);
+  var lines = [headers.join(',')];
+  rows.forEach(function(r){
+    lines.push(headers.map(function(h){ var v=r[h]; if(v===null||v===undefined) v=''; v=String(v); if(v.indexOf(',')>-1||v.indexOf('"')>-1) v='"'+v.replace(/"/g,'""')+'"'; return v; }).join(','));
+  });
+  var blob = new Blob([lines.join('\n')], {type:'text/csv;charset=utf-8;'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+function showToast(msg){
+  var host = document.getElementById('toastHost');
+  var el = document.createElement('div');
+  el.className = 'toast-item'; el.textContent = msg;
+  host.appendChild(el);
+  setTimeout(function(){ el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(function(){ el.remove(); }, 300); }, 2800);
+}
+
+/* ================= THEME ================= */
+function initTheme(){
+  var saved = localStorage.getItem('cg_theme') || 'light';
+  applyTheme(saved);
+  document.getElementById('themeToggleBtn').addEventListener('click', function(){
+    var cur = document.documentElement.getAttribute('data-theme');
+    applyTheme(cur==='dark' ? 'light' : 'dark');
+    if(data.length) renderActiveTab();
+  });
+}
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem('cg_theme', t);
+  var btn = document.getElementById('themeToggleBtn');
+  if(btn) btn.textContent = t==='dark' ? '☀️ Light' : '🌙 Dark';
+}
+initTheme();
+
+/* ================= SCREEN 1: UPLOAD ================= */
+var dropzone = document.getElementById('dropzone');
+var fileInput = document.getElementById('fileInput');
+dropzone.addEventListener('click', function(){ fileInput.click(); });
+dropzone.addEventListener('dragover', function(e){ e.preventDefault(); dropzone.classList.add('dragover'); });
+dropzone.addEventListener('dragleave', function(){ dropzone.classList.remove('dragover'); });
+dropzone.addEventListener('drop', function(e){ e.preventDefault(); dropzone.classList.remove('dragover'); if(e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]); });
+fileInput.addEventListener('change', function(e){ if(e.target.files.length) handleFile(e.target.files[0]); });
+
+/* ---- Sample / Demo data so anyone can explore the dashboard without a CSV ---- */
+function loadSampleData(){
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var cats = ['Electronics','Home Appliances','Personal Care','Grocery','Fashion'];
+  var brands = ['NovaTech','HomeLux','PureCare','FreshMart','StyleCo','ApexGear'];
+  var regions = ['Dhaka','Chittagong','Khulna','Rajshahi','Sylhet'];
+  var channels = ['Retail','Wholesale','Online','Distributor'];
+  var statuses = ['Achieved','Pending','Missed'];
+  var rows = [];
+  var seed = 42;
+  function rnd(){ seed = (seed*16807)%2147483647; return (seed-1)/2147483646; }
+  [2024,2025].forEach(function(yr){
+    months.forEach(function(mo, mi){
+      cats.forEach(function(cat){
+        brands.slice(0,4).forEach(function(br){
+          var region = regions[Math.floor(rnd()*regions.length)];
+          var channel = channels[Math.floor(rnd()*channels.length)];
+          var base = 80000 + rnd()*420000 + mi*8000 + (yr-2024)*35000;
+          var salesVal = Math.round(base * (0.7 + rnd()*0.7));
+          var targetVal = Math.round(salesVal * (0.85 + rnd()*0.3));
+          var qty = Math.round(salesVal / (450 + rnd()*900));
+          var achv = targetVal ? Math.round(salesVal/targetVal*1000)/10 : null;
+          var st = achv>=100 ? 'Achieved' : (achv>=80 ? 'Pending' : 'Missed');
+          rows.push({
+            Year: yr, Month: mo, Category: cat, Brand: br, Region: region, Channel: channel,
+            'Sales Value': salesVal, 'Sales Qty': qty, 'Target Value': targetVal, 'Target Qty': Math.round(qty*(0.9+rnd()*0.25)),
+            'Achievement %': achv, Status: st, Item: cat+' '+br+' SKU-'+Math.floor(rnd()*90+10)
+          });
+        });
+      });
+    });
+  });
+  rawHeaders = Object.keys(rows[0]);
+  rawRows = rows;
+  document.getElementById('uploadStatus').classList.remove('d-none');
+  document.getElementById('uploadStatusText').textContent = 'Sample Sales Data — '+rows.length+' rows, '+rawHeaders.length+' columns (demo).';
+  setTimeout(goToMapping, 350);
+}
+document.getElementById('loadSampleBtn').addEventListener('click', loadSampleData);
+
+function showUploadError(msg){ var el=document.getElementById('uploadError'); el.textContent=msg; el.classList.remove('d-none'); }
+
+function handleFile(file){
+  document.getElementById('uploadError').classList.add('d-none');
+  if(!file.name.toLowerCase().endsWith('.csv')){ showUploadError('Please upload a .csv file.'); return; }
+  if(typeof Papa === 'undefined'){ showUploadError('CSV parser failed to load — check your internet connection and retry.'); return; }
+  Papa.parse(file, { header:true, skipEmptyLines:true,
+    complete:function(res){
+      if(!res.data.length){ showUploadError('This file appears to be empty.'); return; }
+      rawRows = res.data; rawHeaders = res.meta.fields || Object.keys(res.data[0]);
+      document.getElementById('uploadStatus').classList.remove('d-none');
+      document.getElementById('uploadStatusText').textContent = file.name + ' — ' + rawRows.length + ' rows, ' + rawHeaders.length + ' columns detected.';
+      setTimeout(goToMapping, 400);
+    },
+    error:function(err){ showUploadError('Could not parse file: ' + err.message); }
+  });
+}
+
+/* ================= SCREEN 2: MAPPING ================= */
+function autoDetect(hints){
+  var lower = rawHeaders.map(function(h){return h.toLowerCase();});
+  for(var i=0;i<hints.length;i++){ for(var j=0;j<lower.length;j++){ if(lower[j].indexOf(hints[i])>-1) return rawHeaders[j]; } }
+  return '';
+}
+function goToMapping(){
+  document.getElementById('uploadScreen').classList.add('d-none');
+  document.getElementById('mappingScreen').classList.remove('d-none');
+  buildMappingUI(); buildPreviewTable();
+}
+function buildMappingUI(){
+  var reqWrap=document.getElementById('mapRequired'), optWrap=document.getElementById('mapOptional');
+  reqWrap.innerHTML=''; optWrap.innerHTML='';
+  FIELD_DEFS.forEach(function(f){
+    var guess = autoDetect(f.hints);
+    var row = document.createElement('div'); row.className='map-row';
+    var opts = '<option value="">-- Not in file --</option>' + rawHeaders.map(function(h){ return '<option value="'+h+'" '+(h===guess?'selected':'')+'>'+h+'</option>'; }).join('');
+    row.innerHTML = '<div class="map-label">'+f.label+(f.required?' <span class="req">*</span>':'')+'</div>' +
+      '<select class="form-select form-select-sm" data-field="'+f.key+'">'+opts+'</select>';
+    (f.required?reqWrap:optWrap).appendChild(row);
+  });
+}
+function buildPreviewTable(){
+  var tbl=document.getElementById('previewTable');
+  var head='<thead><tr>'+rawHeaders.map(function(h){return '<th>'+h+'</th>';}).join('')+'</tr></thead>';
+  var body='<tbody>'+rawRows.slice(0,5).map(function(r){ return '<tr>'+rawHeaders.map(function(h){return '<td>'+(r[h]!==undefined?r[h]:'')+'</td>';}).join('')+'</tr>'; }).join('')+'</tbody>';
+  tbl.innerHTML = head+body;
+}
+document.getElementById('backToUploadBtn').addEventListener('click', function(){
+  document.getElementById('mappingScreen').classList.add('d-none');
+  document.getElementById('uploadScreen').classList.remove('d-none');
+});
+document.getElementById('generateBtn').addEventListener('click', function(){
+  var errEl=document.getElementById('mapError'); errEl.classList.add('d-none');
+  var selects=document.querySelectorAll('#mapRequired select, #mapOptional select');
+  mapping = {};
+  selects.forEach(function(s){ mapping[s.getAttribute('data-field')] = s.value; });
+  var missing = FIELD_DEFS.filter(function(f){ return f.required && !mapping[f.key]; });
+  if(missing.length){ errEl.textContent='Please map required fields: '+missing.map(function(f){return f.label;}).join(', '); errEl.classList.remove('d-none'); return; }
+  buildDataset();
+  if(!data.length){ errEl.textContent='No valid data rows found after mapping — check your Year and Month columns.'; errEl.classList.remove('d-none'); return; }
+  goToDashboard();
+});
+function buildDataset(){
+  data = [];
+  rawRows.forEach(function(row){
+    var yr = toYear(row[mapping.year]);
+    var monthLabel = mapping.month ? String(row[mapping.month]||'').trim() : '';
+    if(yr===null || !monthLabel) return;
+    var periodLabel = formatPeriodLabel(monthLabel, yr);
+    var rec = {
+      year:yr, period: periodLabel,
+      periodSortKey: yr*100 + monthIdxFromLabel(monthLabel), // always chronological; ignores unreliable source "month no." formats
+      category: mapping.category ? String(row[mapping.category]||'').trim() : '',
+      brand: mapping.brand ? String(row[mapping.brand]||'').trim() : '',
+      region: mapping.region ? String(row[mapping.region]||'').trim() : '',
+      channel: mapping.channel ? String(row[mapping.channel]||'').trim() : '',
+      item: mapping.item ? String(row[mapping.item]||'').trim() : '',
+      status: mapping.status ? String(row[mapping.status]||'').trim() : '',
+      salesQty: mapping.salesQty ? toNum(row[mapping.salesQty]) : 0,
+      salesValue: mapping.salesValue ? toNum(row[mapping.salesValue]) : 0,
+      targetQty: mapping.targetQty ? toNum(row[mapping.targetQty]) : null,
+      targetValue: mapping.targetValue ? toNum(row[mapping.targetValue]) : null,
+      achievement: mapping.achievement ? toNum(row[mapping.achievement]) : null,
+      growth: mapping.growth ? toNum(row[mapping.growth]) : null
+    };
+    if(rec.achievement===null && rec.targetValue){ rec.achievement = rec.targetValue ? (rec.salesValue/rec.targetValue*100) : null; }
+    data.push(rec);
+  });
+}
+
+/* ================= DASHBOARD BOOT ================= */
+function goToDashboard(){
+  document.getElementById('mappingScreen').classList.add('d-none');
+  document.getElementById('dashboardScreen').classList.remove('d-none');
+  document.getElementById('sidebarRowCount').textContent = data.length + ' rows loaded';
+  buildFilterBar();
+  renderTabShells();
+  showTab('overview');
+}
+document.getElementById('newUploadLink').addEventListener('click', function(e){
+  e.preventDefault();
+  if(!confirm('Start a new upload? Current dashboard view will be cleared (saved reports are kept).')) return;
+  data=[]; rawRows=[]; mapping={};
+  filters = {year:['all'],month:['all'],category:['all'],brand:['all'],region:['all'],channel:['all'],status:['all']};
+  document.getElementById('dashboardScreen').classList.add('d-none');
+  document.getElementById('uploadScreen').classList.remove('d-none');
+  document.getElementById('uploadStatus').classList.add('d-none');
+  fileInput.value = '';
+});
+
+/* ================= MULTI-SELECT FILTERS ================= */
+var FILTER_FIELDS = [
+  {key:'year', rowKey:'year', label:'Year'},
+  {key:'month', rowKey:'period', label:'Month'},
+  {key:'category', rowKey:'category', label:'Category'},
+  {key:'brand', rowKey:'brand', label:'Brand'},
+  {key:'region', rowKey:'region', label:'Region'},
+  {key:'channel', rowKey:'channel', label:'Channel'},
+  {key:'status', rowKey:'status', label:'Status'}
+];
+
+function matchesFilters(r, excludeKey){
+  return FILTER_FIELDS.every(function(f){
+    if(f.key===excludeKey) return true;
+    var sel = filters[f.key];
+    if(!sel || sel.indexOf('all')>-1) return true;
+    return sel.indexOf(String(r[f.rowKey])) > -1;
+  });
+}
+function getFilteredData(){ return data.filter(function(r){ return matchesFilters(r,null); }); }
+
+function buildFilterBar(){
+  var bar = document.getElementById('filterBar');
+  var html = '';
+  FILTER_FIELDS.forEach(function(f){
+    var hasAny = data.some(function(r){ return r[f.rowKey]!=='' && r[f.rowKey]!==undefined; });
+    if(!hasAny) return;
+    var scoped = data.filter(function(r){ return matchesFilters(r, f.key); });
+    var opts = f.key==='month' ? monthGroupedPeriodLabels(scoped) : uniqueSorted(scoped.map(function(r){ return r[f.rowKey]; }));
+    // drop stale selections no longer available
+    filters[f.key] = filters[f.key].filter(function(v){ return v==='all' || opts.indexOf(isNaN(v)?v:Number(v))>-1 || opts.map(String).indexOf(v)>-1; });
+    if(!filters[f.key].length) filters[f.key] = ['all'];
+
+    var sel = filters[f.key];
+    var btnLabel = sel.indexOf('all')>-1 ? 'All '+f.label+'s' : (sel.length===1 ? sel[0] : sel.length+' '+f.label+'s');
+    var optsHtml = '<div class="msel-opt" data-val="all"><input type="checkbox" '+(sel.indexOf('all')>-1?'checked':'')+'> All '+f.label+'s</div>' +
+      opts.map(function(o){
+        var checked = sel.indexOf('all')===-1 && sel.indexOf(String(o))>-1;
+        return '<div class="msel-opt" data-val="'+o+'"><input type="checkbox" '+(checked?'checked':'')+'> '+o+'</div>';
+      }).join('');
+    html += '<div class="msel" data-field="'+f.key+'"><button type="button" class="msel-btn">'+btnLabel+'</button>' +
+      '<div class="msel-panel">'+optsHtml+
+      '<div class="msel-foot"><button type="button" data-act="clear">Clear</button><button type="button" data-act="close">Done</button></div>' +
+      '</div></div>';
+  });
+  html += '<button class="clear-btn" id="clearFiltersBtn">Clear all filters</button>';
+  bar.innerHTML = html;
+
+  // wire events
+  bar.querySelectorAll('.msel').forEach(function(mselEl){
+    var fieldKey = mselEl.getAttribute('data-field');
+    mselEl.querySelector('.msel-btn').addEventListener('click', function(e){
+      e.stopPropagation();
+      var willOpen = !mselEl.classList.contains('open');
+      document.querySelectorAll('.msel').forEach(function(m){ m.classList.remove('open'); });
+      if(willOpen){ mselEl.classList.add('open'); openFilterKey = fieldKey; } else { openFilterKey = null; }
+    });
+    mselEl.querySelectorAll('.msel-opt').forEach(function(opt){
+      opt.addEventListener('click', function(e){
+        e.stopPropagation();
+        toggleFilterValue(fieldKey, opt.getAttribute('data-val'));
+      });
+    });
+    mselEl.querySelector('[data-act="clear"]').addEventListener('click', function(e){
+      e.stopPropagation(); filters[fieldKey] = ['all']; openFilterKey = fieldKey; buildFilterBar(); renderActiveTab();
+    });
+    mselEl.querySelector('[data-act="close"]').addEventListener('click', function(e){
+      e.stopPropagation(); openFilterKey = null; buildFilterBar(); renderActiveTab();
+    });
+  });
+  document.getElementById('clearFiltersBtn').addEventListener('click', function(){
+    filters = {year:['all'],month:['all'],category:['all'],brand:['all'],region:['all'],channel:['all'],status:['all']};
+    openFilterKey = null; buildFilterBar(); renderActiveTab();
+  });
+
+  // restore open panel after rebuild
+  if(openFilterKey){
+    var reopen = bar.querySelector('.msel[data-field="'+openFilterKey+'"]');
+    if(reopen) reopen.classList.add('open');
+  }
+  updateTopbarSub();
+}
+// close any open dropdown when clicking elsewhere
+document.addEventListener('click', function(){
+  if(openFilterKey){ openFilterKey=null; document.querySelectorAll('.msel').forEach(function(m){ m.classList.remove('open'); }); }
+});
+
+function toggleFilterValue(fieldKey, value){
+  var arr = filters[fieldKey].slice();
+  if(value==='all'){
+    arr = ['all'];
+  } else {
+    if(arr.indexOf('all')>-1) arr = [];
+    var idx = arr.indexOf(value);
+    if(idx>-1) arr.splice(idx,1); else arr.push(value);
+    if(!arr.length) arr = ['all'];
+  }
+  filters[fieldKey] = arr;
+  buildFilterBar();
+  renderActiveTab();
+}
+
+function updateTopbarSub(){
+  var parts = [];
+  FILTER_FIELDS.forEach(function(f){
+    var sel = filters[f.key];
+    if(sel && sel.indexOf('all')===-1) parts.push(sel.length===1 ? sel[0] : sel.length+' '+f.label+'s');
+  });
+  if(!parts.length) parts.push('All periods · All dimensions');
+  document.getElementById('topbarSub').textContent = parts.join(' · ') + ' · ' + getFilteredData().length + ' records';
+}
+
+// (Top-bar CSV export removed — replaced by direct "Save as HTML" one-click snapshot below.
+//  Per-report CSV export is still available from the Saved Reports tab.)
+
+/* ================= AI SUMMARY (deferred / generate-on-click) ================= */
+function resetSummaryUI(tab, lines){
+  summaryCache[tab] = lines || [];
+  var wrap = document.getElementById('gen-wrap-'+tab);
+  var box = document.getElementById('ai-box-'+tab);
+  if(!wrap || !box) return;
+  box.classList.add('d-none');
+  wrap.classList.remove('d-none');
+  var btn = document.getElementById('gen-btn-'+tab);
+  if(btn){ btn.disabled = !(summaryCache[tab] && summaryCache[tab].length); btn.textContent = '✨ Generate AI Summary'; }
+}
+function wireGenerateButton(tab){
+  var btn = document.getElementById('gen-btn-'+tab);
+  if(!btn || btn._wired) return;
+  btn._wired = true;
+  btn.addEventListener('click', function(){
+    btn.disabled = true; btn.textContent = '🤖 Analyzing...';
+    setTimeout(function(){
+      var box = document.getElementById('ai-box-'+tab);
+      var ul = document.getElementById('ai-'+tab);
+      var lines = summaryCache[tab] || [];
+      ul.innerHTML = lines.length ? lines.map(function(l){return '<li>'+l+'</li>';}).join('') : '<li>Not enough data to generate insights for the current filter.</li>';
+      document.getElementById('gen-wrap-'+tab).classList.add('d-none');
+      box.classList.remove('d-none');
+      btn.disabled = false; btn.textContent = '✨ Generate AI Summary'; // re-arm so the "Refresh" link (which calls btn.click()) keeps working
+    }, 500);
+  });
+}
+
+/* ================= TAB SHELLS ================= */
+var TAB_TITLES = {
+  overview:'Overview', monthly:'Monthly Trend', category:'Category Performance', brand:'Brand Performance',
+  region:'Region & Channel', yoy:'Year-on-Year Comparison', mom:'Month-on-Month Comparison',
+  growth:'+/- Growth Analysis', achievement:'Target Achievement', compare:'Compare', explorer:'Data Explorer', saved:'Saved Reports'
+};
+function panel(title, icon, bodyHtml){ return '<div class="panel"><h6><span>'+(icon||'')+' '+title+'</span></h6>'+bodyHtml+'</div>'; }
+function chartBox(id, height){ return '<div id="'+id+'" style="min-height:'+(height||300)+'px;"></div>'; }
+function kpiCard(label, id){ return '<div class="col-6 col-md-4 col-xl"><div class="kpi-card"><div class="kpi-label">'+label+'</div><div class="kpi-value" id="'+id+'" style="font-size:18px;">—</div><div class="kpi-delta" id="'+id+'_delta"></div></div></div>'; }
+function aiBottomBlock(tab){
+  return '<div class="ai-generate-wrap" id="gen-wrap-'+tab+'"><div style="font-size:13px;color:var(--text-muted);margin-bottom:10px;">Ready to generate insights for this view.</div><button class="btn-generate-ai" id="gen-btn-'+tab+'">✨ Generate AI Summary</button></div>' +
+    '<div class="ai-summary d-none" id="ai-box-'+tab+'"><h6><span>✨ AI Summary</span><button class="ai-refresh-btn" data-tab="'+tab+'" style="background:none;border:none;color:#9fb4c9;font-size:11px;cursor:pointer;">↻ Refresh</button></h6><ul id="ai-'+tab+'"></ul></div>';
+}
+
+function renderTabShells(){
+  var content = document.getElementById('contentArea');
+  var html = '';
+
+  html += '<div class="tab-pane" id="tab-overview">' +
+    '<div class="row g-3 mb-3">' +
+      kpiCard('Total Sales Value','kpi-total-value') + kpiCard('Total Sales Qty','kpi-total-qty') +
+      kpiCard('Avg. Achievement','kpi-achv') + kpiCard('Avg. Growth','kpi-growth') +
+      kpiCard('Avg. MoM Growth','kpi-mom') + kpiCard('YoY Growth','kpi-yoy') +
+      kpiCard('Top Category','kpi-top-cat') + kpiCard('Top Region','kpi-top-region') +
+      kpiCard('Records','kpi-records') + kpiCard('Target Gap','kpi-target-gap') +
+    '</div>' +
+    '<div class="row g-3">' +
+      '<div class="col-lg-7">'+panel('Sales Value Trend','📈', chartBox('chart-ov-trend'))+'</div>' +
+      '<div class="col-lg-5">'+panel('Share by Category','🏷️', chartBox('chart-ov-category'))+'</div>' +
+    '</div>' +
+    '<div class="row g-3">' +
+      '<div class="col-lg-6">'+panel('Sales by Region','🌍', chartBox('chart-ov-region'))+'</div>' +
+      '<div class="col-lg-6">'+panel('Achieved vs Pending','🎯', chartBox('chart-ov-status'))+'</div>' +
+    '</div>' + aiBottomBlock('overview') + '</div>';
+
+  html += '<div class="tab-pane" id="tab-monthly">' +
+    panel('Sales Value vs Target by Month','📅', chartBox('chart-monthly-main',340)) +
+    panel('Monthly Detail','📋', '<div class="table-responsive"><table class="table table-sm table-mini" id="table-monthly"></table></div>') +
+    aiBottomBlock('monthly') + '</div>';
+
+  html += '<div class="tab-pane" id="tab-category">' +
+    '<div class="row g-3">' +
+      '<div class="col-lg-7">'+panel('Sales Value by Category','📊', chartBox('chart-cat-bar'))+'</div>' +
+      '<div class="col-lg-5">'+panel('Category Share','🥧', chartBox('chart-cat-donut'))+'</div>' +
+    '</div>' +
+    panel('Category Detail','📋', '<div class="table-responsive"><table class="table table-sm table-mini" id="table-category"></table></div>') +
+    aiBottomBlock('category') + '</div>';
+
+  html += '<div class="tab-pane" id="tab-brand">' +
+    '<div class="row g-3">' +
+      '<div class="col-lg-7">'+panel('Sales Value by Brand','🏭', chartBox('chart-brand-bar'))+'</div>' +
+      '<div class="col-lg-5">'+panel('Brand Share','🥧', chartBox('chart-brand-donut'))+'</div>' +
+    '</div>' +
+    panel('Brand Detail','📋', '<div class="table-responsive"><table class="table table-sm table-mini" id="table-brand"></table></div>') +
+    aiBottomBlock('brand') + '</div>';
+
+  html += '<div class="tab-pane" id="tab-region">' +
+    '<div class="row g-3">' +
+      '<div class="col-lg-6">'+panel('Sales by Region','🌍', chartBox('chart-region-bar'))+'</div>' +
+      '<div class="col-lg-6">'+panel('Sales by Channel','🛣️', chartBox('chart-channel-bar'))+'</div>' +
+    '</div>' + aiBottomBlock('region') + '</div>';
+
+  html += '<div class="tab-pane" id="tab-yoy">' +
+    panel('Year-on-Year Sales by Month','📈', chartBox('chart-yoy',340)) +
+    panel('YoY Detail','📋', '<div class="table-responsive"><table class="table table-sm table-mini" id="table-yoy"></table></div>') +
+    aiBottomBlock('yoy') + '</div>';
+
+  html += '<div class="tab-pane" id="tab-mom">' +
+    panel('Month-on-Month Growth %','📉', chartBox('chart-mom',340)) +
+    panel('MoM Detail','📋', '<div class="table-responsive"><table class="table table-sm table-mini" id="table-mom"></table></div>') +
+    aiBottomBlock('mom') + '</div>';
+
+  html += '<div class="tab-pane" id="tab-growth">' +
+    '<div class="row g-3 mb-3">' +
+      kpiCard('Avg MoM Growth','kpi-g-avg') + kpiCard('Best Month','kpi-g-best') +
+      kpiCard('Worst Month','kpi-g-worst') + kpiCard('Positive Months','kpi-g-pos') +
+      kpiCard('Negative Months','kpi-g-neg') + kpiCard('Latest MoM','kpi-g-latest') +
+    '</div>' +
+    panel('Month-on-Month +/- Growth %','➕', chartBox('chart-growth-bar',380)) +
+    panel('Growth Detail','📋', '<div class="table-responsive"><table class="table table-sm table-mini" id="table-growth"></table></div>') +
+    aiBottomBlock('growth') + '</div>';
+
+  html += '<div class="tab-pane" id="tab-achievement">' +
+    '<div class="row g-3">' +
+      '<div class="col-lg-5">'+panel('Status Split','🎯', chartBox('chart-achv-donut'))+'</div>' +
+      '<div class="col-lg-7">'+panel('Achievement % by Category','📊', chartBox('chart-achv-bar'))+'</div>' +
+    '</div>' + aiBottomBlock('achievement') + '</div>';
+
+  html += '<div class="tab-pane" id="tab-compare">' +
+    panel('Choose what to compare','⚖️',
+      '<div class="d-flex gap-2 flex-wrap align-items-center mb-2">' +
+      '<div>' +
+        '<label style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;">Compare by</label>' +
+        '<select id="compareDimSelect" class="form-select form-select-sm" style="max-width:200px;">' +
+          '<option value="category">Category</option><option value="brand">Brand</option><option value="region">Region</option>' +
+          '<option value="channel">Channel</option><option value="item">Item / Product</option><option value="year">Year</option><option value="period">Month</option>' +
+        '</select>' +
+      '</div>' +
+      '<div>' +
+        '<label style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;">Breakdown by</label>' +
+        '<select id="compareBreakdownSelect" class="form-select form-select-sm" style="max-width:200px;"></select>' +
+      '</div>' +
+      '<button class="btn btn-sm btn-accent" id="runCompareBtn" style="margin-top:18px;">Compare Selected</button>' +
+      '<button class="btn btn-sm btn-outline-secondary" id="resetCompareBtn" style="margin-top:18px;">↺ Reset</button>' +
+      '<button class="btn btn-sm btn-outline-secondary" id="resetCompareBtn" style="margin-top:18px;">↻ Reset</button>' +
+      '</div>' +
+      '<div class="compare-pick" id="comparePicker"></div>' +
+      '<div style="font-size:12px;color:var(--text-muted);">Pick at least 2 values, then click Compare. Follows the filters set in the top bar. Example: Compare by Region → Dhaka + Khulna, Breakdown by → Category, to see each region\'s sales split across categories.</div>') +
+    '<div id="compareResults"></div>' + '</div>';
+
+  html += '<div class="tab-pane" id="tab-explorer">' +
+    panel('Filtered Records','🗂️',
+      '<div class="d-flex justify-content-between align-items-center mb-2">' +
+      '<input type="text" class="form-control form-control-sm" style="max-width:260px;" id="explorerSearch" placeholder="Search records...">' +
+      '<span style="font-size:12px;color:var(--text-muted);" id="explorerCount"></span></div>' +
+      '<div class="table-responsive" style="max-height:520px;"><table class="table table-sm table-mini" id="table-explorer"></table></div>') +
+    '</div>';
+
+  html += '<div class="tab-pane" id="tab-saved">' + panel('Archived Reports','💾', '<div id="savedReportsList"></div>') + '</div>';
+
+  content.innerHTML = html;
+
+  // Delegated click handler for every "↻ Refresh" button inside AI summary boxes —
+  // works for all tabs without per-button rebinding, and survives content re-renders
+  // since `content` (contentArea) itself is never recreated after this point.
+  // Directly refreshes the visible box (dim → repopulate → restore) so the click has
+  // clear, visible feedback even when the underlying insight text hasn't changed.
+  content.addEventListener('click', function(e){
+    var btn = e.target.closest ? e.target.closest('.ai-refresh-btn') : null;
+    if(!btn) return;
+    var tab = btn.getAttribute('data-tab');
+    var ul = document.getElementById('ai-'+tab);
+    if(!ul || btn.disabled) return;
+    var origLabel = btn.textContent;
+    btn.disabled = true; btn.textContent = '🤖 Refreshing...';
+    ul.style.transition = 'opacity .15s ease'; ul.style.opacity = '0.35';
+    setTimeout(function(){
+      var lines = summaryCache[tab] || [];
+      ul.innerHTML = lines.length ? lines.map(function(l){return '<li>'+l+'</li>';}).join('') : '<li>Not enough data to generate insights for the current filter.</li>';
+      ul.style.opacity = '1';
+      btn.disabled = false; btn.textContent = origLabel;
+    }, 450);
+  });
+
+  document.querySelectorAll('.nav-item').forEach(function(item){
+    item.addEventListener('click', function(){ showTab(item.getAttribute('data-tab')); if(window.innerWidth<=900) closeMobileSidebar(); });
+  });
+  document.getElementById('explorerSearch').addEventListener('input', function(){ renderExplorer(); });
+  document.getElementById('compareDimSelect').addEventListener('change', function(e){ compareDim=e.target.value; compareSelected=[]; renderComparePicker(); populateBreakdownOptions(); });
+  document.getElementById('runCompareBtn').addEventListener('click', runCompare);
+  document.getElementById('resetCompareBtn').addEventListener('click', resetCompare);
+  // Event delegation on the picker container: works regardless of how many times the
+  // chip list inside it gets rebuilt (no per-chip re-binding needed, nothing to lose).
+  document.getElementById('comparePicker').addEventListener('click', function(e){
+    var chip = e.target.closest ? e.target.closest('.compare-chip') : null;
+    if(!chip) return;
+    var v = chip.getAttribute('data-val');
+    var idx = compareSelected.indexOf(v);
+    if(idx>-1) compareSelected.splice(idx,1); else compareSelected.push(v);
+    renderComparePicker();
+  });
+  renderComparePicker();
+  populateBreakdownOptions();
+
+  ['overview','monthly','category','brand','region','yoy','mom','growth','achievement'].forEach(wireGenerateButton);
+}
+
+function showTab(tab){
+  activeTab = tab;
+  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.toggle('active', n.getAttribute('data-tab')===tab); });
+  document.querySelectorAll('.tab-pane').forEach(function(p){ p.classList.remove('active'); });
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.getElementById('topbarTitle').textContent = TAB_TITLES[tab];
+  renderActiveTab();
+}
+function renderActiveTab(){
+  updateTopbarSub();
+  var fd = getFilteredData();
+  switch(activeTab){
+    case 'overview': renderOverview(fd); break;
+    case 'monthly': renderMonthly(fd); break;
+    case 'category': renderCategory(fd); break;
+    case 'brand': renderBrand(fd); break;
+    case 'region': renderRegion(fd); break;
+    case 'yoy': renderYoY(fd); break;
+    case 'mom': renderMoM(fd); break;
+    case 'growth': renderGrowth(fd); break;
+    case 'achievement': renderAchievement(fd); break;
+    case 'explorer': renderExplorer(); break;
+    case 'saved': renderSavedReports(); break;
+    case 'compare': renderComparePicker(); break; // options re-scoped to current top-bar filters
+  }
+}
+function sortedPeriods(fd){
+  var groups = groupBy(fd, function(r){ return r.period+'||'+r.periodSortKey; });
+  var rows = Object.keys(groups).map(function(k){
+    var arr = groups[k];
+    return { period:arr[0].period, sortKey:arr[0].periodSortKey, salesValue:sumField(arr,'salesValue'), salesQty:sumField(arr,'salesQty'),
+      targetValue:sumField(arr,'targetValue'), achievement:avgField(arr,'achievement'), growth:avgField(arr,'growth') };
+  });
+  rows.sort(function(a,b){ return a.sortKey - b.sortKey; });
+  return rows;
+}
+
+/* ================= OVERVIEW ================= */
+function computeOverviewMetrics(fd){
+  var totalValue = sumField(fd,'salesValue');
+  var totalQty = sumField(fd,'salesQty');
+  var totalTarget = sumField(fd,'targetValue');
+  var achv = totalTarget ? (totalValue/totalTarget*100) : avgField(fd,'achievement');
+  var growth = avgField(fd,'growth');
+  var periods = sortedPeriods(fd);
+
+  var momVals = [];
+  for(var i=1;i<periods.length;i++){ var prev=periods[i-1].salesValue; if(prev) momVals.push((periods[i].salesValue-prev)/prev*100); }
+  var avgMom = momVals.length ? momVals.reduce(function(a,b){return a+b;},0)/momVals.length : null;
+  // If no Growth% column mapped, use average MoM as growth so KPI is never blank when trend data exists
+  if(growth===null && avgMom!==null) growth = avgMom;
+
+  // YoY compares whatever TWO years the Year filter actually points to:
+  //  - 2+ years selected (or "All") -> compare the two most recent AMONG the selected years
+  //    (so picking 2024+2025 shows 2024 vs 2025, picking 2025+2026 shows 2025 vs 2026 — not
+  //    always the same fixed pair).
+  //  - exactly 1 year selected -> that single year has nothing to compare against by itself,
+  //    so borrow the immediately preceding year from the full dataset (every OTHER filter —
+  //    region/category/brand/channel/status — still applies) purely to make the comparison
+  //    possible; if it's the earliest year on record, there's genuinely nothing to compare.
+  var years = uniqueSorted(fd.map(function(r){return r.year;}));
+  var yoyYears = [], yoyRows = [];
+  if(years.length>=2){
+    yoyYears = [years[years.length-2], years[years.length-1]];
+    // IMPORTANT: narrow to exactly the two years being compared. If 3+ years are present
+    // (e.g. the default "All years" state), fd still contains every year's rows — summing
+    // a year that byYM was never initialized for would throw and silently abort the whole
+    // render, leaving the KPI frozen at a stale value.
+    yoyRows = fd.filter(function(r){ return r.year===yoyYears[0] || r.year===yoyYears[1]; });
+  } else if(years.length===1){
+    var allYears = uniqueSorted(data.filter(function(r){ return matchesFilters(r,'year'); }).map(function(r){return r.year;}));
+    var idx = allYears.indexOf(years[0]);
+    if(idx>0){
+      yoyYears = [allYears[idx-1], years[0]];
+      yoyRows = data.filter(function(r){ return matchesFilters(r,'year') && (r.year===yoyYears[0] || r.year===yoyYears[1]); });
+    }
+  }
+  var yoy = null, yoyPrevTotal = null, yoyLatestTotal = null;
+  if(yoyYears.length===2){
+    var latest=yoyYears[1], prevY=yoyYears[0];
+    var byYM = {}; byYM[latest]=new Array(12).fill(0); byYM[prevY]=new Array(12).fill(0);
+    yoyRows.forEach(function(r){ var idx=monthIdxFromLabel(r.period)-1; if(idx>=0&&idx<12) byYM[r.year][idx]+=r.salesValue; });
+    var tl=0, tp=0;
+    for(var m=0;m<12;m++){ if(byYM[prevY][m] && byYM[latest][m]){ tl+=byYM[latest][m]; tp+=byYM[prevY][m]; } }
+    if(tp){ yoy = (tl-tp)/tp*100; yoyPrevTotal=tp; yoyLatestTotal=tl; }
+  }
+
+  var byCat = groupBy(fd.filter(function(r){return r.category;}), function(r){return r.category;});
+  var catKeys = Object.keys(byCat);
+  var byStatus = groupBy(fd.filter(function(r){return r.status;}), function(r){return r.status;});
+  var stKeys = Object.keys(byStatus);
+
+  var lines = [];
+  lines.push('📦 Current filter covers <b>'+fd.length+'</b> records — total sales <b>'+fmtMoney(totalValue)+'</b> and <b>'+fmtNum(totalQty)+'</b> units.');
+  if(totalTarget){
+    var gap = totalValue - totalTarget;
+    lines.push('🎯 Target is <b>'+fmtMoney(totalTarget)+'</b>; actual sales are <b>'+fmtMoney(Math.abs(gap))+'</b> '+(gap>=0?'above':'below')+' target'+(achv!==null?' (achievement <b>'+achv.toFixed(1)+'%</b>)':'')+'.');
+  } else if(achv!==null){
+    lines.push('🎯 Overall target achievement stands at <b>'+achv.toFixed(1)+'%</b>'+(achv>=100?' — targets met or exceeded.':' — running below target; prioritise under-performing segments.'));
+  }
+  if(growth!==null) lines.push('📈 Average growth is <b>'+fmtPct(growth)+'</b> — '+(growth>=5?'strong upward momentum.':growth>=0?'mild positive trend.':'contraction; review pricing, mix and pipeline.'));
+  if(avgMom!==null) lines.push('🔄 Average MoM movement is <b>'+fmtPct(avgMom)+'</b>'+(avgMom>=0?', sequential growth is intact.':', sales are cooling month-to-month — watch recent periods closely.'));
+  if(yoy!==null) lines.push('📅 YoY sales are <b>'+(yoy>=0?'up':'down')+' '+Math.abs(yoy).toFixed(1)+'%</b> vs the prior year on comparable months.');
+  if(periods.length>=2){
+    var bestP = periods.slice().sort(function(a,b){return b.salesValue-a.salesValue;})[0];
+    var worstP = periods.slice().sort(function(a,b){return a.salesValue-b.salesValue;})[0];
+    lines.push('🏆 Peak period: <b>'+bestP.period+'</b> ('+fmtMoney(bestP.salesValue)+'); softest: <b>'+worstP.period+'</b> ('+fmtMoney(worstP.salesValue)+').');
+  }
+  if(catKeys.length){
+    var topCat = catKeys.slice().sort(function(a,b){return sumField(byCat[b],'salesValue')-sumField(byCat[a],'salesValue');})[0];
+    var topShare = (sumField(byCat[topCat],'salesValue')/totalValue*100);
+    lines.push('🏷️ <b>'+topCat+'</b> leads categories with <b>'+topShare.toFixed(1)+'%</b> share'+(topShare>40?' — concentration risk if this segment slows.':'.'));
+  }
+  if(stKeys.length){
+    var ach = 0;
+    stKeys.forEach(function(k){ if(String(k).toLowerCase().indexOf('achiev')>-1||String(k).toLowerCase().indexOf('done')>-1) ach += byStatus[k].length; });
+    lines.push('✅ <b>'+ach+'</b> of <b>'+fd.length+'</b> records ('+(ach/fd.length*100).toFixed(0)+'%) are marked Achieved — focus coaching on the rest.');
+  }
+  lines.push('💡 Tip: use filters (Year, Region, Category) to isolate under-performers, then open +/- Growth or Achievement for root-cause views.');
+
+  return { totalValue:totalValue, totalQty:totalQty, totalTarget:totalTarget, achv:achv, growth:growth, avgMom:avgMom, yoy:yoy,
+    years:years, yoyYears:yoyYears, yoyPrevTotal:yoyPrevTotal, yoyLatestTotal:yoyLatestTotal, periods:periods, byCat:byCat, catKeys:catKeys, byStatus:byStatus, stKeys:stKeys, lines:lines };
+}
+
+/* ---- Data-only aggregation helpers (no DOM) used to assemble the FULL static report ---- */
+function computeDimensionBreakdown(fd, dimKey){
+  var rows = fd.filter(function(r){ return r[dimKey]; });
+  if(!rows.length) return null;
+  var groups = groupBy(rows, function(r){ return r[dimKey]; });
+  var total = sumField(rows,'salesValue');
+  var keys = Object.keys(groups).sort(function(a,b){ return sumField(groups[b],'salesValue')-sumField(groups[a],'salesValue'); });
+  return keys.map(function(k){
+    var g = groups[k];
+    return { label:k, qty:sumField(g,'salesQty'), value:sumField(g,'salesValue'), share: total?(sumField(g,'salesValue')/total*100):0, achv: avgField(g,'achievement') };
+  });
+}
+function computeYoYData(fd){
+  var years = uniqueSorted(fd.map(function(r){return r.year;}));
+  if(years.length<2) return null;
+  var monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var byYM = {}; years.forEach(function(y){ byYM[y]=new Array(12).fill(0); });
+  fd.forEach(function(r){ var idx=monthIdxFromLabel(r.period)-1; if(idx>=0&&idx<12) byYM[r.year][idx]+=r.salesValue; });
+  return { years:years, monthNames:monthNames, byYM:byYM };
+}
+function computeMoMData(fd){
+  var periods = sortedPeriods(fd);
+  if(periods.length<2) return null;
+  var momPct = periods.map(function(p,i){ if(i===0) return null; var prev=periods[i-1].salesValue; return prev?((p.salesValue-prev)/prev*100):null; });
+  var displayRows = periods.map(function(p,i){ return { period:p.period, salesValue:p.salesValue, mom:momPct[i] }; });
+  return reorderPeriodsMonthGrouped(displayRows);
+}
+function computeAchievementData(fd){
+  var withStatus = fd.filter(function(r){ return r.status; });
+  var statusCounts = null;
+  if(withStatus.length){ var byStatus=groupBy(withStatus, function(r){return r.status;}); statusCounts = Object.keys(byStatus).map(function(k){return {label:k, count:byStatus[k].length};}); }
+  var withCat = fd.filter(function(r){ return r.category && r.achievement!==null; });
+  var catAchv = null;
+  if(withCat.length){ var byCat=groupBy(withCat, function(r){return r.category;}); catAchv = Object.keys(byCat).map(function(k){return {label:k, achv:avgField(byCat[k],'achievement')};}).sort(function(a,b){return b.achv-a.achv;}); }
+  return { statusCounts:statusCounts, catAchv:catAchv };
+}
+// Gathers EVERYTHING needed to render a full, standalone report (all tabs) — used by
+// both the archive "Save Report" and the direct top-bar "Save as HTML" download.
+function computeFullReportData(fd){
+  var overview = computeOverviewMetrics(fd);
+
+  // Same rule as the live YoY tab: respect 2+ selected years exactly; only borrow the
+  // prior year from a Year-filter-ignored dataset when exactly one year is selected.
+  var yoyFd = fd;
+  var yoyYearsHere = uniqueSorted(fd.map(function(r){return r.year;}));
+  if(yoyYearsHere.length===1){
+    var chosenY = yoyYearsHere[0];
+    var widerRows2 = data.filter(function(r){ return matchesFilters(r, 'year'); });
+    var widerYears2 = uniqueSorted(widerRows2.map(function(r){return r.year;}));
+    var earlier2 = widerYears2.filter(function(y){ return y<chosenY; });
+    if(earlier2.length){
+      var priorY2 = earlier2[earlier2.length-1];
+      yoyFd = widerRows2.filter(function(r){ return r.year===chosenY || r.year===priorY2; });
+    }
+  }
+
+  return {
+    overview: overview,
+    monthlyDisplay: reorderPeriodsMonthGrouped(overview.periods),
+    hasTarget: fd.some(function(r){ return r.targetValue!==null; }),
+    category: computeDimensionBreakdown(fd,'category'),
+    brand: computeDimensionBreakdown(fd,'brand'),
+    region: computeDimensionBreakdown(fd,'region'),
+    channel: computeDimensionBreakdown(fd,'channel'),
+    yoy: computeYoYData(yoyFd),
+    mom: computeMoMData(fd),
+    achievement: computeAchievementData(fd)
+  };
+}
+
+function renderOverview(fd){
+  var m = computeOverviewMetrics(fd);
+  var totalValue=m.totalValue, totalQty=m.totalQty, achv=m.achv, growth=m.growth, avgMom=m.avgMom, yoy=m.yoy, years=m.years, yoyYears=m.yoyYears, periods=m.periods;
+
+  document.getElementById('kpi-total-value').textContent = fmtMoney(totalValue);
+  document.getElementById('kpi-total-value').title = fmtMoneyFull(totalValue);
+  document.getElementById('kpi-total-qty').textContent = fmtNum(totalQty);
+  document.getElementById('kpi-achv').textContent = achv!==null ? achv.toFixed(1)+'%' : '—';
+  document.getElementById('kpi-growth').textContent = growth!==null ? fmtPct(growth) : '—';
+  document.getElementById('kpi-mom').textContent = avgMom!==null ? fmtPct(avgMom) : '—';
+  document.getElementById('kpi-yoy').textContent = yoy!==null ? fmtPct(yoy) : '—';
+  // Hover the YoY KPI to see exactly which two years and totals were compared — useful to
+  // confirm whether a surprising result (like 0.0%) reflects the real underlying numbers.
+  document.getElementById('kpi-yoy').title = (yoyYears.length===2)
+    ? (yoyYears[0]+': '+fmtMoneyFull(m.yoyPrevTotal||0)+'  →  '+yoyYears[1]+': '+fmtMoneyFull(m.yoyLatestTotal||0))
+    : 'Not enough comparable data to compute YoY.';
+
+  setDelta('kpi-growth_delta', growth);
+  setDelta('kpi-mom_delta', avgMom, 'vs prior month avg');
+  setDelta('kpi-yoy_delta', yoy, 'vs '+(yoyYears.length>=2?yoyYears[yoyYears.length-2]:'—'));
+
+  // Extra KPIs
+  var topCatEl = document.getElementById('kpi-top-cat');
+  if(topCatEl){
+    if(m.catKeys && m.catKeys.length){
+      var topC = m.catKeys[0];
+      topCatEl.textContent = topC;
+      topCatEl.title = topC + ' · ' + fmtMoneyFull(sumField(m.byCat[topC],'salesValue'));
+    } else { topCatEl.textContent = '—'; }
+  }
+  var topRegEl = document.getElementById('kpi-top-region');
+  if(topRegEl){
+    var byRegTmp = groupBy(fd.filter(function(r){return r.region;}), function(r){return r.region;});
+    var regK = Object.keys(byRegTmp).sort(function(a,b){return sumField(byRegTmp[b],'salesValue')-sumField(byRegTmp[a],'salesValue');});
+    if(regK.length){ topRegEl.textContent = regK[0]; topRegEl.title = regK[0]+' · '+fmtMoneyFull(sumField(byRegTmp[regK[0]],'salesValue')); }
+    else topRegEl.textContent = '—';
+  }
+  var recEl = document.getElementById('kpi-records');
+  if(recEl) recEl.textContent = fmtNum(fd.length);
+  var gapEl = document.getElementById('kpi-target-gap');
+  if(gapEl){
+    var tVal = sumField(fd,'targetValue');
+    if(tVal){
+      var gap = totalValue - tVal;
+      gapEl.textContent = fmtMoney(gap);
+      gapEl.title = 'Sales '+fmtMoneyFull(totalValue)+' vs Target '+fmtMoneyFull(tVal);
+      setDelta('kpi-target-gap_delta', tVal ? (gap/tVal*100) : null, 'vs target');
+    } else { gapEl.textContent = '—'; }
+  }
+
+  /* Trend = true chronological order (Jan-24 → Dec-24 → Jan-25...), not month-grouped */
+  var displayPeriods = periods.slice(); // already sorted by periodSortKey
+  renderChart('chart-ov-trend', lineOpts({
+    type:'area', height:320, colors:['#5470C6'],
+    categories: displayPeriods.map(function(p){return p.period;}),
+    series:[{name:'Sales Value', data: displayPeriods.map(function(p){return Math.round(p.salesValue);})}],
+    labelFormatter:function(p){
+      // ECharts param object
+      var v = (p && typeof p === 'object' && 'value' in p) ? p.value : p;
+      if(v===null||v===undefined||isNaN(v)) return '';
+      return fmtMoney(v);
+    },
+    tooltip:{ theme: isDarkTheme()?'dark':'light', custom:function(opts){
+      var idx = opts.dataPointIndex;
+      var period = displayPeriods[idx] ? displayPeriods[idx].period : '';
+      var val = opts.series[opts.seriesIndex][idx];
+      var prevVal = idx>0 ? opts.series[opts.seriesIndex][idx-1] : null;
+      var delta = (prevVal!==null && prevVal!==0) ? ((val-prevVal)/prevVal*100) : null;
+      var deltaHtml = delta===null ? '' :
+        '<div style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;margin-top:6px;padding:2px 8px;border-radius:20px;background:'+(delta>=0?'rgba(16,185,129,.18)':'rgba(239,68,68,.18)')+';color:'+(delta>=0?'#34D399':'#F87171')+';">'+
+          (delta>=0?'▲':'▼')+' '+Math.abs(delta).toFixed(1)+'% vs prev. point</div>';
+      return '<div style="background:linear-gradient(135deg,#0B1A2B,#14304A);color:#fff;padding:14px 18px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.3);min-width:170px;font-family:Inter,sans-serif;">'+
+        '<div style="font-size:11px;color:#9fb4c9;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;">📅 '+period+'</div>'+
+        '<div style="font-size:20px;font-weight:800;color:#5470C6;line-height:1.1;">'+fmtMoney(val)+'</div>'+
+        '<div style="font-size:10.5px;color:#8195AA;margin-top:3px;">Sales Value</div>'+
+        deltaHtml+
+      '</div>';
+    } }
+  }));
+
+  var byCat = m.byCat, catKeys = m.catKeys;
+  if(catKeys.length){
+    renderChart('chart-ov-category', donutOpts(
+      catKeys.map(function(k){return Math.round(sumField(byCat[k],'salesValue'));}),
+      catKeys, { height:300, centerLabel:'Total' }
+    ));
+  } else { document.getElementById('chart-ov-category').innerHTML = '<div class="empty-note">Category column not mapped.</div>'; }
+
+  var byRegion = groupBy(fd.filter(function(r){return r.region;}), function(r){return r.region;});
+  var regKeys = Object.keys(byRegion).sort(function(a,b){return sumField(byRegion[b],'salesValue')-sumField(byRegion[a],'salesValue');});
+  if(regKeys.length){
+    renderChart('chart-ov-region', barOpts({
+      height:280, distributed:true, categories: regKeys,
+      series:[{name:'Sales Value', data: regKeys.map(function(k){return Math.round(sumField(byRegion[k],'salesValue'));})}]
+    }));
+  } else { document.getElementById('chart-ov-region').innerHTML = '<div class="empty-note">Region column not mapped.</div>'; }
+
+  var byStatus = m.byStatus, stKeys = m.stKeys;
+  if(stKeys.length){
+    renderChart('chart-ov-status', donutOpts(
+      stKeys.map(function(k){return byStatus[k].length;}),
+      stKeys, { height:280, isCount:true, centerLabel:'Records', colors: statusColorMap(stKeys) }
+    ));
+  } else { document.getElementById('chart-ov-status').innerHTML = '<div class="empty-note">Status column not mapped.</div>'; }
+
+  resetSummaryUI('overview', m.lines);
+}
+function setDelta(id, val, suffix){
+  var el = document.getElementById(id);
+  if(!el) return;
+  if(val===null||val===undefined||isNaN(val)){ el.textContent=''; return; }
+  el.textContent = (val>=0?'▲ ':'▼ ') + Math.abs(val).toFixed(1)+'%' + (suffix?' '+suffix:'');
+  el.className = 'kpi-delta ' + (val>=0?'up':'down');
+}
+
+/* ================= MONTHLY ================= */
+function renderMonthly(fd){
+  var periods = sortedPeriods(fd);
+  var displayPeriods = periods.slice(); // chronological: Jan-24, Feb-24, ... Dec-24, Jan-25
+  var hasTarget = fd.some(function(r){return r.targetValue!==null;});
+  var series = [{name:'Sales Value', data: displayPeriods.map(function(p){return Math.round(p.salesValue);})}];
+  if(hasTarget) series.push({name:'Target Value', data: displayPeriods.map(function(p){return Math.round(p.targetValue||0);})});
+  renderChart('chart-monthly-main', barOpts({
+    height:360, categories: displayPeriods.map(function(p){return p.period;}), series: series, distributed:false
+  }));
+
+  var rows = '<thead><tr><th>Period</th><th>Sales Qty</th><th>Sales Value</th>'+(hasTarget?'<th>Target Value</th><th>Achv %</th>':'')+'<th>Growth %</th></tr></thead><tbody>' +
+    displayPeriods.map(function(p){
+      return '<tr><td>'+p.period+'</td><td>'+fmtNum(p.salesQty)+'</td><td>'+fmtMoney(p.salesValue)+'</td>' +
+        (hasTarget? '<td>'+fmtMoney(p.targetValue)+'</td><td>'+(p.achievement!==null?p.achievement.toFixed(1)+'%':'—')+'</td>' : '') +
+        '<td>'+(p.growth!==null?fmtPct(p.growth):'—')+'</td></tr>';
+    }).join('') + '</tbody>';
+  document.getElementById('table-monthly').innerHTML = rows;
+
+  var lines = [];
+  if(periods.length>=2){
+    var best = periods.slice().sort(function(a,b){return b.salesValue-a.salesValue;})[0];
+    var worst = periods.slice().sort(function(a,b){return a.salesValue-b.salesValue;})[0];
+    var spread = best.salesValue - worst.salesValue;
+    lines.push('🏆 <b>'+best.period+'</b> was strongest at <b>'+fmtMoney(best.salesValue)+'</b>; <b>'+worst.period+'</b> was softest at <b>'+fmtMoney(worst.salesValue)+'</b> (gap <b>'+fmtMoney(spread)+'</b>).');
+    var first=periods[0].salesValue, last=periods[periods.length-1].salesValue;
+    var change = first ? ((last-first)/first*100) : 0;
+    lines.push('📈 From <b>'+periods[0].period+'</b> → <b>'+periods[periods.length-1].period+'</b>, sales moved <b>'+fmtPct(change)+'</b> overall.');
+    // recent 3-period momentum
+    if(periods.length>=4){
+      var recent = periods.slice(-3);
+      var rFirst = recent[0].salesValue, rLast = recent[recent.length-1].salesValue;
+      var rCh = rFirst ? ((rLast-rFirst)/rFirst*100) : 0;
+      lines.push('⏱️ Last 3 periods momentum: <b>'+fmtPct(rCh)+'</b> ('+recent.map(function(p){return p.period;}).join(' → ')+').');
+    }
+    var avgSales = periods.reduce(function(a,b){return a+b.salesValue;},0)/periods.length;
+    var above = periods.filter(function(p){return p.salesValue>=avgSales;}).length;
+    lines.push('📊 <b>'+above+'</b> of <b>'+periods.length+'</b> months sit at or above average sales ('+fmtMoney(avgSales)+').');
+  }
+  if(hasTarget){
+    var missed = periods.filter(function(p){ return p.achievement!==null && p.achievement<100; });
+    var hit = periods.filter(function(p){ return p.achievement!==null && p.achievement>=100; });
+    if(missed.length) lines.push('⚠️ <b>'+missed.length+'</b> of <b>'+periods.length+'</b> periods missed target — latest miss: <b>'+missed[missed.length-1].period+'</b>.');
+    if(hit.length) lines.push('✅ Target hit in <b>'+hit.length+'</b> period(s); best run rate periods are your playbook for the rest.');
+  } else {
+    lines.push('💡 Map a Target Value column to unlock vs-target tracking on this trend.');
+  }
+  resetSummaryUI('monthly', lines);
+}
+
+/* ================= CATEGORY / BRAND (generic) ================= */
+function renderDimension(fd, dimKey, prefix, tab, dimLabel){
+  var rowsWithDim = fd.filter(function(r){return r[dimKey];});
+  if(!rowsWithDim.length){
+    document.getElementById('chart-'+prefix+'-bar').innerHTML = '<div class="empty-note">'+dimLabel+' column not mapped in this file.</div>';
+    document.getElementById('chart-'+prefix+'-donut').innerHTML = '';
+    document.getElementById('table-'+prefix).innerHTML = '';
+    resetSummaryUI(tab, []);
+    return;
+  }
+  var groups = groupBy(rowsWithDim, function(r){return r[dimKey];});
+  var keys = Object.keys(groups).sort(function(a,b){return sumField(groups[b],'salesValue')-sumField(groups[a],'salesValue');});
+  var totalValue = sumField(rowsWithDim,'salesValue');
+
+  renderChart('chart-'+prefix+'-bar', barOpts({
+    height:300, distributed:true, categories: keys,
+    series:[{name:'Sales Value', data: keys.map(function(k){return Math.round(sumField(groups[k],'salesValue'));})}]
+  }));
+  renderChart('chart-'+prefix+'-donut', donutOpts(
+    keys.map(function(k){return Math.round(sumField(groups[k],'salesValue'));}),
+    keys, { height:300, centerLabel:'Total' }
+  ));
+
+  var tbl = '<thead><tr><th>'+dimLabel+'</th><th>Qty</th><th>Sales Value</th><th>Share %</th><th>Avg Achv %</th></tr></thead><tbody>' +
+    keys.map(function(k){
+      var g=groups[k], v=sumField(g,'salesValue'), achv=avgField(g,'achievement');
+      return '<tr><td>'+k+'</td><td>'+fmtNum(sumField(g,'salesQty'))+'</td><td>'+fmtMoney(v)+'</td><td>'+(v/totalValue*100).toFixed(1)+'%</td><td>'+(achv!==null?achv.toFixed(1)+'%':'—')+'</td></tr>';
+    }).join('') + '</tbody>';
+  document.getElementById('table-'+prefix).innerHTML = tbl;
+
+  var lines = [];
+  var top=keys[0], bottom=keys[keys.length-1];
+  var topVal = sumField(groups[top],'salesValue');
+  var topShare = totalValue ? (topVal/totalValue*100) : 0;
+  lines.push('🥇 <b>'+top+'</b> leads with <b>'+fmtMoney(topVal)+'</b> (<b>'+topShare.toFixed(1)+'%</b> share).');
+  if(keys.length>1){
+    var botVal = sumField(groups[bottom],'salesValue');
+    lines.push('🌱 <b>'+bottom+'</b> is the smallest at <b>'+fmtMoney(botVal)+'</b> ('+(totalValue?botVal/totalValue*100:0).toFixed(1)+'%) — possible white-space / growth play.');
+  }
+  if(keys.length>=3){
+    var top3 = keys.slice(0,3);
+    var top3Share = top3.reduce(function(a,k){return a+sumField(groups[k],'salesValue');},0)/totalValue*100;
+    lines.push('📌 Top 3 '+dimLabel.toLowerCase()+'s hold <b>'+top3Share.toFixed(1)+'%</b> of sales'+(top3Share>70?' — high concentration.':' — reasonably diversified.'));
+  }
+  var achvRanked = keys.slice().sort(function(a,b){ var aa=avgField(groups[a],'achievement'), bb=avgField(groups[b],'achievement'); return (bb||0)-(aa||0); });
+  var bestAchv = avgField(groups[achvRanked[0]],'achievement');
+  var worstAchv = avgField(groups[achvRanked[achvRanked.length-1]],'achievement');
+  if(bestAchv!==null) lines.push('🎯 Best achievement: <b>'+achvRanked[0]+'</b> at <b>'+bestAchv.toFixed(1)+'%</b>'+(worstAchv!==null?' · weakest: <b>'+achvRanked[achvRanked.length-1]+'</b> at <b>'+worstAchv.toFixed(1)+'%</b>.':'.'));
+  lines.push('💡 Compare high-sales / low-achievement segments — volume is strong but execution may lag target.');
+  resetSummaryUI(tab, lines);
+}
+function renderCategory(fd){ renderDimension(fd,'category','cat','category','Category'); }
+function renderBrand(fd){ renderDimension(fd,'brand','brand','brand','Brand'); }
+
+/* ================= REGION & CHANNEL ================= */
+function renderRegion(fd){
+  var byRegion = groupBy(fd.filter(function(r){return r.region;}), function(r){return r.region;});
+  var regKeys = Object.keys(byRegion).sort(function(a,b){return sumField(byRegion[b],'salesValue')-sumField(byRegion[a],'salesValue');});
+  if(regKeys.length){
+    renderChart('chart-region-bar', barOpts({
+      height:300, distributed:true, categories: regKeys,
+      series:[{name:'Sales Value', data: regKeys.map(function(k){return Math.round(sumField(byRegion[k],'salesValue'));})}]
+    }));
+  } else { document.getElementById('chart-region-bar').innerHTML = '<div class="empty-note">Region column not mapped.</div>'; }
+
+  var byChannel = groupBy(fd.filter(function(r){return r.channel;}), function(r){return r.channel;});
+  var chKeys = Object.keys(byChannel).sort(function(a,b){return sumField(byChannel[b],'salesValue')-sumField(byChannel[a],'salesValue');});
+  if(chKeys.length){
+    renderChart('chart-channel-bar', barOpts({
+      height:300, distributed:true, categories: chKeys,
+      series:[{name:'Sales Value', data: chKeys.map(function(k){return Math.round(sumField(byChannel[k],'salesValue'));})}]
+    }));
+  } else { document.getElementById('chart-channel-bar').innerHTML = '<div class="empty-note">Channel column not mapped.</div>'; }
+
+  var lines = [];
+  var totalReg = regKeys.reduce(function(a,k){return a+sumField(byRegion[k],'salesValue');},0);
+  if(regKeys.length){
+    var r0 = sumField(byRegion[regKeys[0]],'salesValue');
+    lines.push('🌍 Top region: <b>'+regKeys[0]+'</b> with <b>'+fmtMoney(r0)+'</b> ('+(totalReg?r0/totalReg*100:0).toFixed(1)+'% of regional sales).');
+  }
+  if(regKeys.length>1){
+    var rLast = sumField(byRegion[regKeys[regKeys.length-1]],'salesValue');
+    lines.push('📍 Softest region: <b>'+regKeys[regKeys.length-1]+'</b> at <b>'+fmtMoney(rLast)+'</b> — candidate for focused campaigns or coverage review.');
+  }
+  if(chKeys.length){
+    var c0 = sumField(byChannel[chKeys[0]],'salesValue');
+    var totalCh = chKeys.reduce(function(a,k){return a+sumField(byChannel[k],'salesValue');},0);
+    lines.push('🛒 Leading channel: <b>'+chKeys[0]+'</b> generating <b>'+fmtMoney(c0)+'</b> ('+(totalCh?c0/totalCh*100:0).toFixed(1)+'% of channel sales).');
+  }
+  if(regKeys.length>1) lines.push('🗺️ Sales span <b>'+regKeys.length+'</b> regions'+(chKeys.length?' and <b>'+chKeys.length+'</b> channels':'')+' — use Compare tab to stack regions by month.');
+  if(regKeys.length>=3){
+    var top2Share = (sumField(byRegion[regKeys[0]],'salesValue')+sumField(byRegion[regKeys[1]],'salesValue'))/(totalReg||1)*100;
+    lines.push('⚖️ Top 2 regions account for <b>'+top2Share.toFixed(1)+'%</b> of regional value'+(top2Share>60?' — geographic concentration risk.':'.'));
+  }
+  resetSummaryUI('region', lines);
+}
+
+/* ================= YoY ================= */
+function renderYoY(fd){
+  // Respect the Year filter selection first: if 2+ years are already selected (or "All"),
+  // show exactly those. Only fall back to a wider (Year-filter-ignored) dataset when the
+  // filter has been narrowed to a single year, so that pick still has something to compare
+  // against instead of an empty state.
+  var years = uniqueSorted(fd.map(function(r){return r.year;}));
+  if(years.length===1){
+    var chosen = years[0];
+    var widerRows = data.filter(function(r){ return matchesFilters(r, 'year'); });
+    var widerYears = uniqueSorted(widerRows.map(function(r){return r.year;}));
+    var earlier = widerYears.filter(function(y){ return y<chosen; });
+    if(earlier.length){
+      var priorY = earlier[earlier.length-1];
+      fd = widerRows.filter(function(r){ return r.year===chosen || r.year===priorY; });
+      years = [priorY, chosen];
+    }
+  }
+  if(years.length<2){
+    document.getElementById('chart-yoy').innerHTML = '<div class="empty-note">Need at least two years of data to compare YoY — select another year, or clear the Year filter.</div>';
+    document.getElementById('table-yoy').innerHTML = ''; resetSummaryUI('yoy', []); return;
+  }
+  var monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var byYearMonth = {}; years.forEach(function(y){byYearMonth[y]=new Array(12).fill(0);});
+  fd.forEach(function(r){ var idx=monthIdxFromLabel(r.period)-1; if(idx>=0&&idx<12) byYearMonth[r.year][idx]+=r.salesValue; });
+  var series = years.map(function(y){ return {name:String(y), data: byYearMonth[y].map(function(v){return Math.round(v);})}; });
+  renderChart('chart-yoy', barOpts({
+    height:360, categories: monthNames, series: series, distributed:false
+  }));
+
+  var latest=years[years.length-1], prev=years[years.length-2];
+  var tbl = '<thead><tr><th>Month</th>'+years.map(function(y){return '<th>'+y+'</th>';}).join('')+'<th>YoY % ('+prev+'→'+latest+')</th></tr></thead><tbody>';
+  var totalLatest=0, totalPrev=0, monthDeltas=[];
+  monthNames.forEach(function(m,i){
+    var vLatest=byYearMonth[latest][i], vPrev=byYearMonth[prev][i];
+    if(vLatest||vPrev){ totalLatest+=vLatest; totalPrev+=vPrev; }
+    var pct = vPrev ? ((vLatest-vPrev)/vPrev*100) : null;
+    if(vPrev && vLatest) monthDeltas.push({month:m, pct:pct});
+    tbl += '<tr><td>'+m+'</td>'+years.map(function(y){return '<td>'+fmtMoney(byYearMonth[y][i])+'</td>';}).join('')+'<td>'+(pct!==null?fmtPct(pct):'—')+'</td></tr>';
+  });
+  tbl += '</tbody>';
+  document.getElementById('table-yoy').innerHTML = tbl;
+
+  var lines = [];
+  var overallPct = totalPrev ? ((totalLatest-totalPrev)/totalPrev*100) : null;
+  if(overallPct!==null){
+    lines.push('📅 <b>'+latest+'</b> vs <b>'+prev+'</b>: overall YoY is <b>'+fmtPct(overallPct)+'</b> (comparable months).');
+    lines.push('💰 Totals — '+latest+': <b>'+fmtMoney(totalLatest)+'</b> · '+prev+': <b>'+fmtMoney(totalPrev)+'</b> · delta <b>'+fmtMoney(totalLatest-totalPrev)+'</b>.');
+  }
+  if(monthDeltas.length){
+    var bestM = monthDeltas.slice().sort(function(a,b){return b.pct-a.pct;})[0];
+    var worstM = monthDeltas.slice().sort(function(a,b){return a.pct-b.pct;})[0];
+    lines.push('🚀 Strongest YoY month: <b>'+bestM.month+'</b> ('+fmtPct(bestM.pct)+'); weakest: <b>'+worstM.month+'</b> ('+fmtPct(worstM.pct)+').');
+    var upMonths = monthDeltas.filter(function(d){return d.pct>=0;}).length;
+    var downMonths = monthDeltas.filter(function(d){return d.pct<0;}).length;
+    lines.push('📊 <b>'+upMonths+'</b> months grew YoY and <b>'+downMonths+'</b> declined — '+(upMonths>downMonths?'breadth of growth looks healthy.':'growth is narrow; investigate soft months.'));
+    var avgYoY = monthDeltas.reduce(function(a,b){return a+b.pct;},0)/monthDeltas.length;
+    lines.push('📈 Average monthly YoY change: <b>'+fmtPct(avgYoY)+'</b>.');
+  }
+  lines.push('💡 Align marketing and inventory to historically strong months; stress-test plans for weak YoY months.');
+  resetSummaryUI('yoy', lines);
+}
+
+/* ================= MoM ================= */
+function renderMoM(fd){
+  var periods = sortedPeriods(fd); // true chronological order — required for correct % math
+  if(periods.length<2){
+    document.getElementById('chart-mom').innerHTML = '<div class="empty-note">Need at least two periods in the current filter to compute MoM change.</div>';
+    document.getElementById('table-mom').innerHTML = ''; resetSummaryUI('mom', []); return;
+  }
+  var momPct = periods.map(function(p,i){ if(i===0) return null; var prevVal=periods[i-1].salesValue; return prevVal ? ((p.salesValue-prevVal)/prevVal*100) : null; });
+
+  // Keep chronological order for MoM chart (true time sequence)
+  var displayRows = periods.map(function(p,i){ return { period:p.period, salesValue:p.salesValue, mom: momPct[i] }; });
+  var chartRows = displayRows.filter(function(r){ return r.mom!==null; }); // drop base month(s) with no prior period
+  renderChart('chart-mom', lineOpts({
+    type:'line', height:360, colors:['#5470C6'],
+    categories: chartRows.map(function(r){return r.period;}),
+    series:[{name:'Sales Value', data: chartRows.map(function(r){ return Math.round(r.salesValue); })}],
+    labelFormatter:function(p){
+      var idx = (p && typeof p === 'object' && p.dataIndex !== undefined) ? p.dataIndex : null;
+      if(idx===null) return '';
+      var row = chartRows[idx];
+      return row && row.mom!==null ? fmtPct(row.mom) : '';
+    }
+  }));
+
+  var tbl = '<thead><tr><th>Period</th><th>Sales Value</th><th>MoM %</th></tr></thead><tbody>' +
+    displayRows.map(function(r){
+      var cell = r.mom===null ? '<span style="color:var(--text-muted);">Base month</span>' : fmtPct(r.mom);
+      return '<tr><td>'+r.period+'</td><td>'+fmtMoney(r.salesValue)+'</td><td>'+cell+'</td></tr>';
+    }).join('') + '</tbody>';
+  document.getElementById('table-mom').innerHTML = tbl;
+
+  var valid = momPct.filter(function(v){return v!==null;});
+  var lines = [];
+  if(valid.length){
+    var avgMom = valid.reduce(function(a,b){return a+b;},0)/valid.length;
+    lines.push('🔄 Average MoM change: <b>'+fmtPct(avgMom)+'</b> across <b>'+valid.length+'</b> sequential periods.');
+    var maxIdx = momPct.indexOf(Math.max.apply(null, valid));
+    var minIdx = momPct.indexOf(Math.min.apply(null, valid));
+    lines.push('🚀 Sharpest jump: <b>'+periods[maxIdx].period+'</b> ('+fmtPct(momPct[maxIdx])+') · steepest drop: <b>'+periods[minIdx].period+'</b> ('+fmtPct(momPct[minIdx])+').');
+    var pos = valid.filter(function(v){return v>=0;}).length;
+    var neg = valid.filter(function(v){return v<0;}).length;
+    lines.push('📊 <b>'+pos+'</b> up-months vs <b>'+neg+'</b> down-months'+(pos>neg?' — net positive sequential bias.':pos===neg?' — mixed sequential pattern.':' — net negative sequential bias.'));
+    var lastMom = momPct[momPct.length-1];
+    if(lastMom!==null) lines.push('⏱️ Latest momentum into <b>'+periods[periods.length-1].period+'</b>: <b>'+fmtPct(lastMom)+'</b> ('+(lastMom>=0?'positive':'negative')+').');
+    if(valid.length>=3){
+      var last3 = valid.slice(-3);
+      var l3avg = last3.reduce(function(a,b){return a+b;},0)/last3.length;
+      lines.push('📉 Recent 3-period avg MoM: <b>'+fmtPct(l3avg)+'</b> — '+(l3avg>=avgMom?'accelerating vs full-period average.':'softer than full-period average.'));
+    }
+    lines.push('💡 Open the +/- Growth tab for a green/red bar view of the same MoM series.');
+  }
+  resetSummaryUI('mom', lines);
+}
+
+/* ================= +/- GROWTH ================= */
+function renderGrowth(fd){
+  var periods = sortedPeriods(fd);
+  if(periods.length < 2){
+    document.getElementById('chart-growth-bar').innerHTML = '<div class="empty-note">Need at least two periods to compute growth.</div>';
+    document.getElementById('table-growth').innerHTML = '';
+    ['kpi-g-avg','kpi-g-best','kpi-g-worst','kpi-g-pos','kpi-g-neg','kpi-g-latest'].forEach(function(id){
+      var el = document.getElementById(id); if(el) el.textContent = '—';
+    });
+    resetSummaryUI('growth', []); return;
+  }
+  var rows = [];
+  for(var i=1;i<periods.length;i++){
+    var prev = periods[i-1].salesValue;
+    var cur = periods[i].salesValue;
+    var pct = prev ? ((cur-prev)/prev*100) : null;
+    rows.push({ period: periods[i].period, salesValue: cur, prevValue: prev, mom: pct });
+  }
+  var valid = rows.filter(function(r){ return r.mom !== null; });
+  var avg = valid.length ? valid.reduce(function(a,b){return a+b.mom;},0)/valid.length : null;
+  var best = valid.slice().sort(function(a,b){return b.mom-a.mom;})[0];
+  var worst = valid.slice().sort(function(a,b){return a.mom-b.mom;})[0];
+  var posN = valid.filter(function(r){return r.mom>=0;}).length;
+  var negN = valid.filter(function(r){return r.mom<0;}).length;
+  var latest = valid.length ? valid[valid.length-1] : null;
+
+  var set = function(id, txt){ var el=document.getElementById(id); if(el) el.textContent = txt; };
+  set('kpi-g-avg', avg!==null ? fmtPct(avg) : '—');
+  set('kpi-g-best', best ? best.period+' '+fmtPct(best.mom) : '—');
+  set('kpi-g-worst', worst ? worst.period+' '+fmtPct(worst.mom) : '—');
+  set('kpi-g-pos', String(posN));
+  set('kpi-g-neg', String(negN));
+  set('kpi-g-latest', latest ? fmtPct(latest.mom) : '—');
+
+  var t = eTheme();
+  var cats = rows.map(function(r){return r.period;});
+  var data = rows.map(function(r){
+    var v = r.mom===null ? 0 : Number(r.mom.toFixed(1));
+    return {
+      value: v,
+      itemStyle: {
+        color: v >= 0 ? '#91CC75' : '#EE6666',
+        borderRadius: v >= 0 ? [6,6,2,2] : [2,2,6,6]
+      }
+    };
+  });
+  var dense = cats.length > 14;
+  var opt = Object.assign(eBase(), {
+    grid: { left: 56, right: 20, top: 36, bottom: dense ? 70 : 48, containLabel: false },
+    xAxis: {
+      type: 'category', data: cats,
+      axisLine: { lineStyle: { color: t.axisLine } },
+      axisTick: { show: false },
+      axisLabel: {
+        color: t.text, fontSize: dense ? 9.5 : 11, fontWeight: 600,
+        rotate: dense ? 40 : 0, hideOverlap: true
+      }
+    },
+    yAxis: {
+      type: 'value',
+      axisLine: { show: false }, axisTick: { show: false },
+      splitLine: { lineStyle: { color: t.splitLine, type: 'dashed' } },
+      axisLabel: { color: t.text, fontSize: 11, formatter: function(v){ return v+'%'; } }
+    },
+    series: [{
+      name: 'MoM Growth %',
+      type: 'bar',
+      data: data,
+      barMaxWidth: dense ? 22 : 36,
+      markLine: {
+        silent: true, symbol: 'none',
+        lineStyle: { color: t.axisLine, type: 'solid', width: 1 },
+        data: [{ yAxis: 0 }]
+      },
+      label: eLabel({
+        position: 'top',
+        distance: 4,
+        fontSize: dense ? 8 : 9,
+        formatter: function(p){
+          var v = p.value;
+          if(v===null||v===undefined||isNaN(v)) return '';
+          if(dense && cats.length > 18 && (p.dataIndex % 2)!==0) return '';
+          return (v>=0?'+':'') + Number(v).toFixed(1) + '%';
+        }
+      })
+    }],
+    tooltip: Object.assign({}, eBase().tooltip, {
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' },
+      formatter: function(params){
+        if(!params||!params.length) return '';
+        var p = params[0];
+        var row = rows[p.dataIndex];
+        var v = p.value;
+        var sign = v>=0 ? '+' : '';
+        return '<div style="font-weight:700;margin-bottom:6px;">'+p.axisValueLabel+'</div>'+
+          '<div>MoM Growth: <b style="color:'+(v>=0?'#91CC75':'#EE6666')+'">'+sign+Number(v).toFixed(1)+'%</b></div>'+
+          (row ? '<div style="margin-top:4px;opacity:.85;">Sales: '+fmtMoneyFull(row.salesValue)+'</div>' : '');
+      }
+    })
+  });
+  renderChart('chart-growth-bar', opt);
+
+  var tbl = '<thead><tr><th>Period</th><th>Sales Value</th><th>Prev Period</th><th>MoM %</th><th>Direction</th></tr></thead><tbody>' +
+    rows.map(function(r){
+      var dir = r.mom===null ? '—' : (r.mom>=0 ? '▲ Up' : '▼ Down');
+      var clr = r.mom===null ? '' : (r.mom>=0 ? 'color:#16A34A;font-weight:700;' : 'color:#DC2626;font-weight:700;');
+      return '<tr><td>'+r.period+'</td><td>'+fmtMoney(r.salesValue)+'</td><td>'+fmtMoney(r.prevValue)+'</td>'+
+        '<td style="'+clr+'">'+(r.mom!==null?fmtPct(r.mom):'—')+'</td><td style="'+clr+'">'+dir+'</td></tr>';
+    }).join('') + '</tbody>';
+  document.getElementById('table-growth').innerHTML = tbl;
+
+  var lines = [];
+  if(avg!==null) lines.push('📈 Average MoM growth: <b>'+fmtPct(avg)+'</b> across <b>'+valid.length+'</b> periods.');
+  if(best) lines.push('🚀 Best growth month: <b>'+best.period+'</b> at <b>'+fmtPct(best.mom)+'</b> — study mix, promos and channel that drove it.');
+  if(worst) lines.push('⚠️ Softest month: <b>'+worst.period+'</b> at <b>'+fmtPct(worst.mom)+'</b> — check stockouts, seasonality and competitor activity.');
+  lines.push('🟢 <b>'+posN+'</b> positive months · 🔴 <b>'+negN+'</b> negative months'+(posN>negN?' — growth months outnumber declines.':posN===negN?' — balanced up/down pattern.':' — declines outnumber growth months.'));
+  if(latest) lines.push('⏱️ Latest MoM ('+latest.period+'): <b>'+fmtPct(latest.mom)+'</b> on sales of <b>'+fmtMoney(latest.salesValue)+'</b>.');
+  if(valid.length>=4){
+    var firstHalf = valid.slice(0, Math.floor(valid.length/2));
+    var secondHalf = valid.slice(Math.floor(valid.length/2));
+    var a1 = firstHalf.reduce(function(a,b){return a+b.mom;},0)/firstHalf.length;
+    var a2 = secondHalf.reduce(function(a,b){return a+b.mom;},0)/secondHalf.length;
+    lines.push('🔀 First-half avg MoM <b>'+fmtPct(a1)+'</b> vs second-half <b>'+fmtPct(a2)+'</b> — '+(a2>a1?'momentum is improving.':a2<a1?'momentum is slowing.':'momentum is stable.'));
+  }
+  var bigSwings = valid.filter(function(r){return Math.abs(r.mom)>=15;}).length;
+  if(bigSwings) lines.push('⚡ <b>'+bigSwings+'</b> period(s) moved ±15% or more — volatility is material; smooth with rolling targets.');
+  lines.push('💡 Pair this view with YoY to separate seasonal patterns from true growth.');
+  resetSummaryUI('growth', lines);
+}
+
+/* ================= ACHIEVEMENT ================= */
+function renderAchievement(fd){
+  var withStatus = fd.filter(function(r){return r.status;});
+  if(withStatus.length){
+    var byStatus = groupBy(withStatus, function(r){return r.status;});
+    var stKeys = Object.keys(byStatus);
+    renderChart('chart-achv-donut', donutOpts(
+      stKeys.map(function(k){return byStatus[k].length;}),
+      stKeys, { height:300, isCount:true, centerLabel:'Records', colors: statusColorMap(stKeys) }
+    ));
+  } else { document.getElementById('chart-achv-donut').innerHTML = '<div class="empty-note">Status column not mapped.</div>'; }
+
+  var withCat = fd.filter(function(r){return r.category && r.achievement!==null;});
+  if(withCat.length){
+    var byCat = groupBy(withCat, function(r){return r.category;});
+    var catKeys = Object.keys(byCat).sort(function(a,b){return avgField(byCat[b],'achievement')-avgField(byCat[a],'achievement');});
+    renderChart('chart-achv-bar', barOpts({
+      height:300, isPct:true, categories: catKeys, yMax: function(max){ return Math.max(max, 110); },
+      series:[{name:'Avg Achievement %', data: catKeys.map(function(k){ return Number(avgField(byCat[k],'achievement').toFixed(1)); })}],
+      annotations:{ yaxis:[{ y:100, borderColor:'#d87a80', strokeDashArray:4, label:{ text:'Target 100%', style:{background:'#d87a80', color:'#fff', fontSize:'10px'} } }] }
+    }));
+  } else { document.getElementById('chart-achv-bar').innerHTML = '<div class="empty-note">Category or achievement data not available.</div>'; }
+
+  var lines = [];
+  if(withStatus.length){
+    var bySt = groupBy(withStatus, function(r){return r.status;});
+    var achCount = 0, pendCount = 0;
+    Object.keys(bySt).forEach(function(k){
+      var s = String(k).toLowerCase();
+      if(s.indexOf('achiev')>-1||s.indexOf('done')>-1||s.indexOf('complete')>-1) achCount += bySt[k].length;
+      else if(s.indexOf('pend')>-1||s.indexOf('progress')>-1) pendCount += bySt[k].length;
+    });
+    lines.push('✅ <b>'+achCount+'</b> of <b>'+withStatus.length+'</b> records ('+(achCount/withStatus.length*100).toFixed(0)+'%) are Achieved'+(pendCount?' · <b>'+pendCount+'</b> still Pending':'')+'.');
+  }
+  var totalValue = sumField(fd,'salesValue'), totalTarget = sumField(fd,'targetValue');
+  if(totalTarget){
+    var blend = totalValue/totalTarget*100;
+    var gap = totalValue - totalTarget;
+    lines.push('🎯 Blended achievement: <b>'+blend.toFixed(1)+'%</b> — sales <b>'+fmtMoney(totalValue)+'</b> vs target <b>'+fmtMoney(totalTarget)+'</b> (gap <b>'+fmtMoney(gap)+'</b>).');
+    lines.push(blend>=100?'🏆 Overall target is met or exceeded — protect share and upsell.':'⚠️ Below target overall — prioritise high-gap categories and regions.');
+  }
+  if(withCat.length){
+    var byCat2 = groupBy(withCat, function(r){return r.category;});
+    var ranked = Object.keys(byCat2).sort(function(a,b){return avgField(byCat2[b],'achievement')-avgField(byCat2[a],'achievement');});
+    var bestA = avgField(byCat2[ranked[0]],'achievement');
+    var worstA = avgField(byCat2[ranked[ranked.length-1]],'achievement');
+    lines.push('🏷️ Best vs target: <b>'+ranked[0]+'</b>'+(bestA!==null?' ('+bestA.toFixed(1)+'%)':'')+' · needs attention: <b>'+ranked[ranked.length-1]+'</b>'+(worstA!==null?' ('+worstA.toFixed(1)+'%)':'')+'.');
+    var under = ranked.filter(function(k){ var a=avgField(byCat2[k],'achievement'); return a!==null && a<100; });
+    if(under.length) lines.push('📋 <b>'+under.length+'</b> categor'+(under.length===1?'y is':'ies are')+' under 100% achievement — schedule recovery actions this cycle.');
+  }
+  lines.push('💡 Use Compare to stack under-achieving segments by month and find when gaps opened.');
+  resetSummaryUI('achievement', lines);
+}
+
+/* ================= COMPARE ================= */
+var COMPARE_ROWKEY = {category:'category', brand:'brand', region:'region', channel:'channel', item:'item', year:'year', period:'period'};
+var COMPARE_LABELS = {category:'Category', brand:'Brand', region:'Region', channel:'Channel', item:'Item / Product', year:'Year', period:'Month'};
+function dimensionOptions(rows, dim){
+  var rowKey = COMPARE_ROWKEY[dim];
+  if(dim==='period') return monthGroupedPeriodLabels(rows);
+  return uniqueSorted(rows.map(function(r){return r[rowKey];}));
+}
+function populateBreakdownOptions(){
+  var sel = document.getElementById('compareBreakdownSelect');
+  var keys = Object.keys(COMPARE_LABELS).filter(function(k){ return k!==compareDim; });
+  sel.innerHTML = '<option value="none">Total (no breakdown)</option>' +
+    keys.map(function(k){ return '<option value="'+k+'">'+COMPARE_LABELS[k]+'-wise</option>'; }).join('');
+}
+// Clears the Compare tab back to its starting state: no selected values, breakdown
+// back to "Total", and any previously rendered comparison results removed.
+function resetCompare(){
+  compareSelected = [];
+  var bd = document.getElementById('compareBreakdownSelect');
+  if(bd) bd.value = 'none';
+  renderComparePicker();
+  var results = document.getElementById('compareResults');
+  if(results) results.innerHTML = '';
+  showToast('↺ Compare selections cleared.');
+}
+function renderComparePicker(){
+  var scope = getFilteredData(); // respects the top-bar filters ("dependable filtering")
+  var opts = dimensionOptions(scope, compareDim);
+  var wrap = document.getElementById('comparePicker');
+  if(!opts.length){ wrap.innerHTML = '<div class="empty-note" style="padding:14px;">No values available for this dimension under the current top-bar filters.</div>'; return; }
+  wrap.innerHTML = opts.map(function(o){
+    var sel = compareSelected.indexOf(String(o))>-1;
+    return '<span class="compare-chip'+(sel?' selected':'')+'" data-val="'+o+'">'+o+'</span>';
+  }).join('');
+}
+// Event delegation on the picker container is wired inside renderTabShells(),
+// once #comparePicker actually exists in the DOM (see below).
+function runCompare(){
+  try{
+  if(compareSelected.length<2){ showToast('⚠️ Pick at least 2 values to compare.'); return; }
+  var rowKey = COMPARE_ROWKEY[compareDim];
+  var breakdown = document.getElementById('compareBreakdownSelect').value; // none | category | brand | region | channel | item | period | year
+  var scope = getFilteredData();
+  var scopedByVal = compareSelected.map(function(v){ return { label:v, rows: scope.filter(function(r){ return String(r[rowKey])===v; }) }; });
+  var stats = scopedByVal.map(function(s){
+    return { label:s.label, salesValue:sumField(s.rows,'salesValue'), salesQty:sumField(s.rows,'salesQty'), achievement:avgField(s.rows,'achievement'), growth:avgField(s.rows,'growth'), count:s.rows.length };
+  });
+
+  var html;
+  if(breakdown==='none'){
+    html = '<div class="row g-3">' +
+        '<div class="col-lg-6">'+panel('Sales Value Comparison','📊', chartBox('chart-compare-value',300))+'</div>' +
+        '<div class="col-lg-6">'+panel('Achievement % Comparison','🎯', chartBox('chart-compare-achv',300))+'</div>' +
+       '</div>';
+  } else {
+    html = panel(COMPARE_LABELS[breakdown]+'-wise Sales Value — '+compareSelected.join(' vs '),'📊', chartBox('chart-compare-trend',360)) +
+      panel(COMPARE_LABELS[breakdown]+' Breakdown Table','📋', '<div class="table-responsive"><table class="table table-sm table-mini" id="table-compare-pivot"></table></div>');
+  }
+  html += panel('Overall Totals','📋', '<div class="table-responsive"><table class="table table-sm table-mini" id="table-compare"></table></div>') +
+    panel('Insight','✨', '<ul id="compare-insight" style="margin-bottom:0;font-size:13.5px;"></ul>');
+  document.getElementById('compareResults').innerHTML = html;
+
+  if(breakdown==='none'){
+    renderChart('chart-compare-value', barOpts({
+      height:300, distributed:true, categories: stats.map(function(s){return s.label;}),
+      series:[{name:'Sales Value', data: stats.map(function(s){return Math.round(s.salesValue);})}]
+    }));
+    renderChart('chart-compare-achv', barOpts({
+      height:300, distributed:true, isPct:true, categories: stats.map(function(s){return s.label;}),
+      series:[{name:'Avg Achievement %', data: stats.map(function(s){ return s.achievement!==null?Number(s.achievement.toFixed(1)):0; })}]
+    }));
+  } else {
+    // Breakdown labels come from the rows belonging to the SELECTED primary values only.
+    var scopedSelectedRows = scope.filter(function(r){ return compareSelected.indexOf(String(r[rowKey]))>-1; });
+    var breakdownLabels = dimensionOptions(scopedSelectedRows, breakdown);
+    var breakdownRowKey = COMPARE_ROWKEY[breakdown];
+    var series = scopedByVal.map(function(s){
+      var grouped = groupBy(s.rows, function(r){ return r[breakdownRowKey]; });
+      return { name:s.label, data: breakdownLabels.map(function(lbl){ return Math.round(sumField(grouped[lbl]||[], 'salesValue')); }) };
+    });
+    if(breakdown==='period'){
+      renderChart('chart-compare-trend', lineOpts({
+        type:'line', height:360, categories: breakdownLabels, series: series
+      }));
+    } else {
+      renderChart('chart-compare-trend', barOpts({
+        height:360, categories: breakdownLabels, series: series, distributed:false
+      }));
+    }
+
+    var pivotHead = '<thead><tr><th>'+COMPARE_LABELS[breakdown]+'</th>'+compareSelected.map(function(v){return '<th>'+v+'</th>';}).join('')+'</tr></thead>';
+    var pivotBody = '<tbody>'+breakdownLabels.map(function(lbl, li){
+      return '<tr><td>'+lbl+'</td>'+series.map(function(s){return '<td>'+fmtMoney(s.data[li])+'</td>';}).join('')+'</tr>';
+    }).join('')+'</tbody>';
+    document.getElementById('table-compare-pivot').innerHTML = pivotHead+pivotBody;
+  }
+
+  var tbl = '<thead><tr><th>'+COMPARE_LABELS[compareDim]+'</th><th>Records</th><th>Sales Qty</th><th>Sales Value</th><th>Avg Achv %</th><th>Avg Growth %</th></tr></thead><tbody>' +
+    stats.map(function(s){ return '<tr><td>'+s.label+'</td><td>'+s.count+'</td><td>'+fmtNum(s.salesQty)+'</td><td>'+fmtMoney(s.salesValue)+'</td><td>'+(s.achievement!==null?s.achievement.toFixed(1)+'%':'—')+'</td><td>'+(s.growth!==null?fmtPct(s.growth):'—')+'</td></tr>'; }).join('') + '</tbody>';
+  document.getElementById('table-compare').innerHTML = tbl;
+
+  var ranked = stats.slice().sort(function(a,b){return b.salesValue-a.salesValue;});
+  var top = ranked[0], bottom = ranked[ranked.length-1];
+  var insight = [];
+  var diffPct = bottom.salesValue ? ((top.salesValue-bottom.salesValue)/bottom.salesValue*100) : null;
+  insight.push('<li><b>'+top.label+'</b> leads with '+fmtMoney(top.salesValue)+', '+(diffPct!==null?diffPct.toFixed(0)+'% ahead of':'well ahead of')+' <b>'+bottom.label+'</b> ('+fmtMoney(bottom.salesValue)+').</li>');
+  var achvRanked = stats.slice().filter(function(s){return s.achievement!==null;}).sort(function(a,b){return b.achievement-a.achievement;});
+  if(achvRanked.length) insight.push('<li><b>'+achvRanked[0].label+'</b> has the best target achievement at '+achvRanked[0].achievement.toFixed(1)+'%.</li>');
+  if(breakdown!=='none'){
+    var bd0 = series[0], bd1 = series[1];
+    if(bd0 && bd1){
+      var diffs = bd0.data.map(function(v,i){ return { label:breakdownLabels[i], diff: v-(bd1.data[i]||0) }; }).sort(function(a,b){return Math.abs(b.diff)-Math.abs(a.diff);});
+      if(diffs.length) insight.push('<li>Biggest gap between <b>'+bd0.name+'</b> and <b>'+bd1.name+'</b> is in <b>'+diffs[0].label+'</b> ('+fmtMoney(Math.abs(diffs[0].diff))+' difference).</li>');
+    }
+  }
+  document.getElementById('compare-insight').innerHTML = insight.join('');
+  }catch(err){
+    showToast('❌ Compare failed: '+err.message);
+    console.error('Compare error:', err);
+  }
+}
+
+/* ================= EXPLORER ================= */
+function renderExplorer(){
+  var fd = getFilteredData();
+  var q = (document.getElementById('explorerSearch').value||'').toLowerCase();
+  var rows = fd;
+  if(q) rows = fd.filter(function(r){ return [r.period,r.category,r.brand,r.region,r.channel,r.item,r.status].join(' ').toLowerCase().indexOf(q)>-1; });
+  document.getElementById('explorerCount').textContent = rows.length+' of '+fd.length+' records';
+  var cols = ['year','period','category','brand','region','channel','item','salesQty','salesValue','targetValue','achievement','growth','status'];
+  var labels = ['Year','Month','Category','Brand','Region','Channel','Item','Sales Qty','Sales Value','Target Value','Achv %','Growth %','Status'];
+  var head = '<thead><tr>'+labels.map(function(l){return '<th>'+l+'</th>';}).join('')+'</tr></thead>';
+  var body = '<tbody>'+rows.slice(0,300).map(function(r){
+    return '<tr>'+cols.map(function(c){
+      var v = r[c];
+      if(c==='salesValue'||c==='targetValue') v = v!==null ? fmtMoney(v) : '—';
+      else if(c==='salesQty') v = fmtNum(v);
+      else if(c==='achievement'||c==='growth') v = v!==null ? v.toFixed(1)+'%' : '—';
+      else if(c==='status'){ v = v ? '<span class="'+(v==='Achieved'?'badge-achieved':'badge-pending')+'">'+v+'</span>' : ''; }
+      return '<td>'+(v!==undefined&&v!==null?v:'')+'</td>';
+    }).join('')+'</tr>';
+  }).join('')+'</tbody>';
+  document.getElementById('table-explorer').innerHTML = head+body;
+}
+
+/* ================= SAVED REPORTS ================= */
+var SAVE_KEY = 'cg_erp_saved_reports_v1';
+function getSavedReports(){ try{ return JSON.parse(localStorage.getItem(SAVE_KEY)||'[]'); }catch(e){ return []; } }
+function persistSavedReports(list){ localStorage.setItem(SAVE_KEY, JSON.stringify(list)); }
+function saveCurrentReport(name){
+  var fd = getFilteredData();
+  var full = computeFullReportData(fd);
+  var m = full.overview;
+  var report = { id:Date.now(), name: name || ('Report '+new Date().toLocaleString()), savedAt:new Date().toISOString(),
+    filters: JSON.parse(JSON.stringify(filters)),
+    kpis: { totalValue:m.totalValue, totalQty:m.totalQty, achievement:m.achv, growth:m.growth, avgMom:m.avgMom, yoy:m.yoy, recordCount:fd.length },
+    full: full,
+    rows: fd };
+  var list = getSavedReports(); list.unshift(report); persistSavedReports(list);
+  return report;
+}
+function deleteSavedReport(id){ persistSavedReports(getSavedReports().filter(function(r){return r.id!==id;})); renderSavedReports(); showToast('🗑️ Report deleted.'); }
+function renderSavedReports(){
+  var list = getSavedReports();
+  var wrap = document.getElementById('savedReportsList');
+  if(!wrap) return;
+  if(!list.length){ wrap.innerHTML = '<div class="empty-note">No saved reports yet. Use the "Save Report" button in the top bar to archive the current view.</div>'; return; }
+  wrap.innerHTML = list.map(function(r){
+    var f = r.filters || {};
+    var chips = Object.keys(f).filter(function(k){ return f[k] && f[k].indexOf && f[k].indexOf('all')===-1 && f[k].length; })
+      .map(function(k){ return '<span class="chip">'+k+': '+f[k].join(', ')+'</span>'; }).join('');
+    return '<div class="saved-card"><div class="d-flex justify-content-between align-items-start flex-wrap gap-2">' +
+      '<div><div style="font-weight:800;font-size:14.5px;">'+r.name+'</div>' +
+      '<div style="font-size:11.5px;color:var(--text-muted);margin-bottom:6px;">Saved '+new Date(r.savedAt).toLocaleString()+' · '+r.kpis.recordCount+' records</div>' +
+      '<div>'+(chips || '<span class="chip">All data</span>')+'</div></div>' +
+      '<div class="text-end"><div style="font-weight:800;">'+fmtMoney(r.kpis.totalValue)+'</div>' +
+      '<div style="font-size:11.5px;color:var(--text-muted);">'+(r.kpis.achievement!==null&&r.kpis.achievement!==undefined?r.kpis.achievement.toFixed(1)+'% achv':'')+'</div></div></div>' +
+      '<div class="d-flex gap-2 mt-2 flex-wrap">' +
+      '<button class="btn btn-sm btn-outline-secondary" onclick="loadSavedReportFilters('+r.id+')">Apply Filters</button>' +
+      '<button class="btn btn-sm btn-outline-secondary" onclick="exportSavedReport('+r.id+')">Export CSV</button>' +
+      '<button class="btn btn-sm btn-accent" onclick="exportSavedReportHTML('+r.id+')">📄 Static HTML Report</button>' +
+      '<button class="btn btn-sm btn-outline-danger" onclick="deleteSavedReport('+r.id+')">Delete</button></div></div>';
+  }).join('');
+}
+function loadSavedReportFilters(id){
+  var report = getSavedReports().find(function(r){return r.id===id;});
+  if(!report) return;
+  filters = Object.assign({year:['all'],month:['all'],category:['all'],brand:['all'],region:['all'],channel:['all'],status:['all']}, report.filters);
+  buildFilterBar();
+  showTab('overview');
+  showToast('✅ Filters applied from "'+report.name+'".');
+}
+function exportSavedReport(id){
+  var report = getSavedReports().find(function(r){return r.id===id;});
+  if(!report) return;
+  downloadCSV(report.rows, (report.name.replace(/[^a-z0-9]+/gi,'_')||'report')+'.csv');
+}
+
+/* ---- Frozen, standalone static HTML export (opens/works on its own, never changes) ---- */
+function dimTableRows(items, labelHeader){
+  if(!items || !items.length) return null;
+  return '<table><thead><tr><th>'+labelHeader+'</th><th>Qty</th><th>Sales Value</th><th>Share %</th><th>Avg Achv %</th></tr></thead><tbody>' +
+    items.map(function(it){ return '<tr><td>'+it.label+'</td><td>'+fmtNum(it.qty)+'</td><td>'+fmtMoney(it.value)+'</td><td>'+it.share.toFixed(1)+'%</td><td>'+(it.achv!==null?it.achv.toFixed(1)+'%':'—')+'</td></tr>'; }).join('') +
+    '</tbody></table>';
+}
+function buildStaticReportHTML(r){
+  var f = r.filters || {};
+  var filterChips = Object.keys(f).filter(function(k){ return f[k] && f[k].indexOf && f[k].indexOf('all')===-1 && f[k].length; })
+    .map(function(k){ return '<span class="chip">'+k+': '+f[k].join(', ')+'</span>'; }).join('') || '<span class="chip">All data</span>';
+  var kpis = r.kpis, full = r.full || {};
+  var kpiHtml = [
+    ['Total Sales Value', fmtMoney(kpis.totalValue)],
+    ['Total Sales Qty', fmtNum(kpis.totalQty)],
+    ['Avg. Achievement', kpis.achievement!==null&&kpis.achievement!==undefined ? kpis.achievement.toFixed(1)+'%' : '—'],
+    ['Avg. Growth', kpis.growth!==null&&kpis.growth!==undefined ? fmtPct(kpis.growth) : '—'],
+    ['Avg. MoM Growth', kpis.avgMom!==null&&kpis.avgMom!==undefined ? fmtPct(kpis.avgMom) : '—'],
+    ['YoY Growth', kpis.yoy!==null&&kpis.yoy!==undefined ? fmtPct(kpis.yoy) : '—']
+  ].map(function(k){ return '<div class="kpi"><div class="kl">'+k[0]+'</div><div class="kv">'+k[1]+'</div></div>'; }).join('');
+  var summaryHtml = ((full.overview&&full.overview.lines)||[]).map(function(l){ return '<li>'+l+'</li>'; }).join('') || '<li>No insights recorded.</li>';
+
+  var rowsCols = ['year','period','category','brand','region','channel','item','salesQty','salesValue','targetValue','achievement','growth','status'];
+  var rowsLabels = ['Year','Month','Category','Brand','Region','Channel','Item','Qty','Sales Value','Target','Achv %','Growth %','Status'];
+  var tableRows = r.rows.map(function(row){
+    return '<tr>'+rowsCols.map(function(c){
+      var v = row[c];
+      if(c==='salesValue'||c==='targetValue') v = v!==null&&v!==undefined ? fmtMoney(v) : '—';
+      else if(c==='salesQty') v = fmtNum(v);
+      else if(c==='achievement'||c==='growth') v = (v!==null&&v!==undefined) ? v.toFixed(1)+'%' : '—';
+      return '<td>'+(v!==undefined&&v!==null?v:'')+'</td>';
+    }).join('')+'</tr>';
+  }).join('');
+
+  // Monthly section
+  var monthly = full.monthlyDisplay || [];
+  var monthlyTable = monthly.length ? ('<table><thead><tr><th>Period</th><th>Sales Qty</th><th>Sales Value</th>'+(full.hasTarget?'<th>Target</th><th>Achv %</th>':'')+'</tr></thead><tbody>' +
+    monthly.map(function(p){ return '<tr><td>'+p.period+'</td><td>'+fmtNum(p.salesQty)+'</td><td>'+fmtMoney(p.salesValue)+'</td>'+(full.hasTarget?'<td>'+fmtMoney(p.targetValue)+'</td><td>'+(p.achievement!==null?p.achievement.toFixed(1)+'%':'—')+'</td>':'')+'</tr>'; }).join('') +
+    '</tbody></table>') : null;
+
+  // MoM section
+  var momRows = full.mom || [];
+  var momTable = momRows.length ? ('<table><thead><tr><th>Period</th><th>Sales Value</th><th>MoM %</th></tr></thead><tbody>' +
+    momRows.map(function(row){ return '<tr><td>'+row.period+'</td><td>'+fmtMoney(row.salesValue)+'</td><td>'+(row.mom===null?'<span style="color:#8195AA;">Base month</span>':fmtPct(row.mom))+'</td></tr>'; }).join('') +
+    '</tbody></table>') : null;
+
+  // YoY section
+  var yoyData = full.yoy;
+  var yoyTable = null;
+  if(yoyData){
+    var latestY=yoyData.years[yoyData.years.length-1], prevY=yoyData.years[yoyData.years.length-2];
+    yoyTable = '<table><thead><tr><th>Month</th>'+yoyData.years.map(function(y){return '<th>'+y+'</th>';}).join('')+'<th>YoY % ('+prevY+'→'+latestY+')</th></tr></thead><tbody>' +
+      yoyData.monthNames.map(function(mn,i){
+        var vL=yoyData.byYM[latestY][i], vP=yoyData.byYM[prevY][i];
+        var pct = vP ? ((vL-vP)/vP*100) : null;
+        return '<tr><td>'+mn+'</td>'+yoyData.years.map(function(y){return '<td>'+fmtMoney(yoyData.byYM[y][i])+'</td>';}).join('')+'<td>'+(pct!==null?fmtPct(pct):'—')+'</td></tr>';
+      }).join('') + '</tbody></table>';
+  }
+
+  // Achievement section
+  var achv = full.achievement || {};
+  var achvCatTable = achv.catAchv && achv.catAchv.length ? ('<table><thead><tr><th>Category</th><th>Avg Achievement %</th></tr></thead><tbody>' +
+    achv.catAchv.map(function(a){ return '<tr><td>'+a.label+'</td><td>'+a.achv.toFixed(1)+'%</td></tr>'; }).join('') + '</tbody></table>') : null;
+
+  var section = function(title, icon, innerHtml){ return innerHtml ? ('<div class="panel"><h2>'+icon+' '+title+'</h2>'+innerHtml+'</div>') : ''; };
+  var chartDiv = function(id){ return '<div id="'+id+'" style="min-height:280px;margin-bottom:14px;"></div>'; };
+
+  var displayPeriods = reorderPeriodsMonthGrouped((full.overview&&full.overview.periods||[]).map(function(p){return {period:p.period, salesValue:p.salesValue};}));
+  var chartData = JSON.stringify(displayPeriods);
+  var catChartData = JSON.stringify((full.category||[]).map(function(c){return {label:c.label, value:Math.round(c.value)};}));
+  var brandChartData = JSON.stringify((full.brand||[]).map(function(c){return {label:c.label, value:Math.round(c.value)};}));
+  var regionChartData = JSON.stringify((full.region||[]).map(function(c){return {label:c.label, value:Math.round(c.value)};}));
+  var channelChartData = JSON.stringify((full.channel||[]).map(function(c){return {label:c.label, value:Math.round(c.value)};}));
+  var monthlyChartData = JSON.stringify(monthly.map(function(p){return {period:p.period, salesValue:Math.round(p.salesValue)};}));
+  var momChartData = JSON.stringify(momRows.filter(function(row){return row.mom!==null;}).map(function(row){return {period:row.period, mom:Number(row.mom.toFixed(1)), salesValue:Math.round(row.salesValue)};}));
+  var yoyChartData = yoyData ? JSON.stringify({years:yoyData.years, monthNames:yoyData.monthNames, byYM:yoyData.byYM}) : 'null';
+  var statusChartData = JSON.stringify(achv.statusCounts||[]);
+  var achvBarChartData = JSON.stringify((achv.catAchv||[]).map(function(a){return {label:a.label, achv:Number(a.achv.toFixed(1))};}));
+
+  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+r.name+' — City Group Full Report</title>' +
+  '<style>' +
+  'body{font-family:Inter,Arial,sans-serif;background:#F1F4F8;color:#16202B;margin:0;padding:32px;}' +
+  '.wrap{max-width:1000px;margin:0 auto;}' +
+  '.hdr{background:linear-gradient(135deg,#0F2136,#173252);color:#fff;border-radius:14px;padding:24px 28px;margin-bottom:20px;}' +
+  '.hdr h1{font-family:Manrope,sans-serif;font-size:22px;margin:0 0 4px;}' +
+  '.hdr .meta{font-size:12.5px;color:#B9C6D6;}' +
+  '.badge-static{display:inline-block;background:rgba(16,185,129,.2);color:#6EE7B7;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-top:8px;}' +
+  '.chip{font-size:11px;background:#0F2136;color:#B9C6D6;padding:3px 9px;border-radius:20px;margin-right:5px;display:inline-block;margin-top:8px;}' +
+  '.panel{background:#fff;border:1px solid #E4E9F0;border-radius:14px;padding:18px 20px;margin-bottom:18px;}' +
+  '.panel h2{font-family:Manrope,sans-serif;font-size:14px;margin:0 0 12px;}' +
+  '.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}' +
+  '.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}' +
+  '.kpi{background:#F8FAFC;border:1px solid #E4E9F0;border-radius:10px;padding:12px 14px;}' +
+  '.kl{font-size:11px;color:#6B7684;font-weight:600;text-transform:uppercase;}' +
+  '.kv{font-family:Manrope,sans-serif;font-weight:800;font-size:19px;margin-top:4px;}' +
+  '.ai{background:linear-gradient(135deg,#0F2136,#173252);color:#E7EEF6;border-radius:14px;padding:18px 20px;margin-bottom:18px;}' +
+  '.ai h2{color:#fff;font-family:Manrope,sans-serif;font-size:13px;text-transform:uppercase;margin:0 0 10px;}' +
+  '.ai li{font-size:13.5px;line-height:1.6;margin-bottom:6px;color:#DCE6F0;}' +
+  'table{width:100%;border-collapse:collapse;font-size:12px;}' +
+  'th{background:#F5F7FA;font-size:11px;text-transform:uppercase;color:#6B7684;padding:6px 8px;text-align:left;white-space:nowrap;}' +
+  'td{padding:6px 8px;border-bottom:1px solid #EEF1F5;white-space:nowrap;}' +
+  '.tblwrap{max-height:420px;overflow:auto;border:1px solid #E4E9F0;border-radius:10px;}' +
+  '.footnote{text-align:center;font-size:11.5px;color:#8195AA;margin-top:20px;}' +
+  '.navlinks{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}' +
+  '.navlinks a{font-size:11.5px;background:#fff;border:1px solid #E4E9F0;border-radius:20px;padding:5px 12px;color:#16202B;text-decoration:none;}' +
+  '@media(max-width:700px){.kpis{grid-template-columns:repeat(2,1fr);} .grid2{grid-template-columns:1fr;}}' +
+  '</style></head><body><div class="wrap">' +
+  '<div class="hdr"><h1>'+r.name+'</h1>' +
+  '<div class="meta">Generated '+new Date(r.savedAt).toLocaleString()+' · '+r.kpis.recordCount+' records</div>' +
+  '<div>'+filterChips+'</div>' +
+  '<div class="badge-static">📌 Full static snapshot — frozen at download time, will not change</div></div>' +
+  '<div class="navlinks"><a href="#kpi">Key Metrics</a><a href="#ai">AI Summary</a><a href="#monthly">Monthly</a>'+
+    (full.category?'<a href="#category">Category</a>':'')+(full.brand?'<a href="#brand">Brand</a>':'')+
+    ((full.region||full.channel)?'<a href="#region">Region &amp; Channel</a>':'')+(yoyData?'<a href="#yoy">YoY</a>':'')+
+    '<a href="#mom">MoM</a>'+(achv.statusCounts?'<a href="#achv">Achievement</a>':'')+'<a href="#data">Full Data</a></div>' +
+  '<div class="panel" id="kpi"><h2>Key Metrics</h2><div class="kpis">'+kpiHtml+'</div></div>' +
+  '<div class="ai" id="ai"><h2>✨ AI Summary</h2><ul>'+summaryHtml+'</ul></div>' +
+  '<div class="panel" id="monthly"><h2>📅 Monthly Trend</h2>'+chartDiv('chartMonthly')+(monthlyTable?'<div class="tblwrap">'+monthlyTable+'</div>':'')+'</div>' +
+  section('Category Performance','🏷️', full.category ? ('<div class="grid2">'+chartDiv('chartCategory')+'<div class="tblwrap">'+dimTableRows(full.category,'Category')+'</div></div>') : null).replace('<div class="panel">','<div class="panel" id="category">') +
+  section('Brand Performance','🏭', full.brand ? ('<div class="grid2">'+chartDiv('chartBrand')+'<div class="tblwrap">'+dimTableRows(full.brand,'Brand')+'</div></div>') : null).replace('<div class="panel">','<div class="panel" id="brand">') +
+  section('Region & Channel','🌍', (full.region||full.channel) ? ('<div class="grid2">'+
+      (full.region?('<div>'+chartDiv('chartRegion')+'<div class="tblwrap">'+dimTableRows(full.region,'Region')+'</div></div>'):'') +
+      (full.channel?('<div>'+chartDiv('chartChannel')+'<div class="tblwrap">'+dimTableRows(full.channel,'Channel')+'</div></div>'):'') +
+    '</div>') : null).replace('<div class="panel">','<div class="panel" id="region">') +
+  section('Year-on-Year Comparison','📈', yoyData ? (chartDiv('chartYoy')+'<div class="tblwrap">'+yoyTable+'</div>') : null).replace('<div class="panel">','<div class="panel" id="yoy">') +
+  '<div class="panel" id="mom"><h2>📉 Month-on-Month Comparison</h2>'+chartDiv('chartMom')+(momTable?'<div class="tblwrap">'+momTable+'</div>':'')+'</div>' +
+  section('Target Achievement','🎯', achv.statusCounts ? ('<div class="grid2">'+chartDiv('chartAchvDonut')+(achvCatTable?('<div>'+chartDiv('chartAchvBar')+'<div class="tblwrap">'+achvCatTable+'</div></div>'):'')+'</div>') : null).replace('<div class="panel">','<div class="panel" id="achv">') +
+  '<div class="panel" id="data"><h2>🗂️ Full Data ('+r.rows.length+' rows)</h2><div class="tblwrap"><table><thead><tr>'+rowsLabels.map(function(l){return '<th>'+l+'</th>';}).join('')+'</tr></thead><tbody>'+tableRows+'</tbody></table></div></div>' +
+  '<div class="footnote">Generated by City Group Sales Analytics ERP · This file is self-contained and safe to store or share.</div>' +
+  '</div>' +
+  '<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"><\/script>' +
+  '<script>' +
+  'var _trend='+chartData+', _cat='+catChartData+', _brand='+brandChartData+', _region='+regionChartData+', _channel='+channelChartData+
+  ', _monthly='+monthlyChartData+', _mom='+momChartData+', _yoy='+yoyChartData+', _status='+statusChartData+', _achvBar='+achvBarChartData+';' +
+  'function mk(id,opts){ var el=document.getElementById(id); if(el && typeof echarts!=="undefined"){ el.style.height=(el.style.minHeight||"280px"); var c=echarts.init(el); c.setOption(opts); } }' +
+  'function fmtM(n){ if(n===null||n===undefined||isNaN(n)) return "—"; var neg=n<0,a=Math.abs(n),out; if(a>=1e7) out="৳"+(a/1e7).toFixed(2).replace(/\\.00$/,"")+"Cr"; else if(a>=1e5) out="৳"+(a/1e5).toFixed(2).replace(/\\.00$/,"")+"L"; else if(a>=1e3) out="৳"+(a/1e3).toFixed(1).replace(/\\.0$/,"")+"K"; else out="৳"+Math.round(a).toLocaleString("en-IN"); return neg?"("+out+")":out; }' +
+  'mk("chartMonthly", {chart:{type:"bar",height:280,toolbar:{show:false}},colors:["#10B981","#F59E0B"],dataLabels:{enabled:false},series:[{name:"Sales Value",data:_monthly.map(function(p){return p.salesValue;})}],xaxis:{categories:_monthly.map(function(p){return p.period;})},yaxis:{labels:{formatter:function(v){return fmtM(v);}}},tooltip:{y:{formatter:function(v){return fmtM(v);}}},plotOptions:{bar:{borderRadius:4,columnWidth:"55%"}}});' +
+  'if(_cat.length) mk("chartCategory", {chart:{type:"donut",height:280},series:_cat.map(function(c){return c.value;}),labels:_cat.map(function(c){return c.label;}),tooltip:{y:{formatter:function(v){return fmtM(v);}}}});' +
+  'if(_brand.length) mk("chartBrand", {chart:{type:"donut",height:280},series:_brand.map(function(c){return c.value;}),labels:_brand.map(function(c){return c.label;}),tooltip:{y:{formatter:function(v){return fmtM(v);}}}});' +
+  'if(_region.length) mk("chartRegion", {chart:{type:"bar",height:260,toolbar:{show:false}},colors:["#3B82F6"],dataLabels:{enabled:false},legend:{show:false},series:[{name:"Sales Value",data:_region.map(function(c){return c.value;})}],xaxis:{categories:_region.map(function(c){return c.label;})},yaxis:{labels:{formatter:function(v){return fmtM(v);}}},tooltip:{y:{formatter:function(v){return fmtM(v);}}},plotOptions:{bar:{borderRadius:4,distributed:true}}});' +
+  'if(_channel.length) mk("chartChannel", {chart:{type:"bar",height:260,toolbar:{show:false}},colors:["#8B5CF6"],dataLabels:{enabled:false},legend:{show:false},series:[{name:"Sales Value",data:_channel.map(function(c){return c.value;})}],xaxis:{categories:_channel.map(function(c){return c.label;})},yaxis:{labels:{formatter:function(v){return fmtM(v);}}},tooltip:{y:{formatter:function(v){return fmtM(v);}}},plotOptions:{bar:{borderRadius:4,distributed:true}}});' +
+  'if(_yoy){ mk("chartYoy", {chart:{type:"bar",height:300,toolbar:{show:false}},dataLabels:{enabled:false},series:_yoy.years.map(function(y){return {name:String(y), data:_yoy.byYM[y]};}),xaxis:{categories:_yoy.monthNames},yaxis:{labels:{formatter:function(v){return fmtM(v);}}},tooltip:{y:{formatter:function(v){return fmtM(v);}}},plotOptions:{bar:{borderRadius:4,columnWidth:"60%"}}}); }' +
+  'mk("chartMom", {chart:{type:"line",height:280,toolbar:{show:false}},colors:["#3B82F6"],dataLabels:{enabled:true,offsetY:-10,style:{fontSize:"10px",fontWeight:700,colors:["#3B82F6"]},formatter:function(val,opts){ var row=_mom[opts.dataPointIndex]; return row?(row.mom>=0?"+":"")+row.mom.toFixed(1)+"%":""; }},stroke:{curve:"smooth",width:3},markers:{size:4},series:[{name:"Sales Value",data:_mom.map(function(m){return m.salesValue;})}],xaxis:{categories:_mom.map(function(m){return m.period;})},yaxis:{labels:{formatter:function(v){return fmtM(v);}}},tooltip:{y:{formatter:function(v,opts){ var row=opts&&opts.dataPointIndex!==undefined?_mom[opts.dataPointIndex]:null; return fmtM(v)+(row?"  (MoM "+(row.mom>=0?"+":"")+row.mom.toFixed(1)+"%)":""); }}}});' +
+  'if(_status.length) mk("chartAchvDonut", {chart:{type:"donut",height:260},series:_status.map(function(s){return s.count;}),labels:_status.map(function(s){return s.label;}),colors:["#10B981","#F59E0B","#EF4444"],tooltip:{y:{formatter:function(v){return v+" record"+(v===1?"":"s");}}}});' +
+  'if(_achvBar.length) mk("chartAchvBar", {chart:{type:"bar",height:260,toolbar:{show:false}},colors:["#10B981"],dataLabels:{enabled:false},legend:{show:false},series:[{name:"Avg Achievement %",data:_achvBar.map(function(a){return a.achv;})}],xaxis:{categories:_achvBar.map(function(a){return a.label;})},yaxis:{labels:{formatter:function(v){return v.toFixed(0)+"%";}}},tooltip:{y:{formatter:function(v){return v.toFixed(1)+"%";}}},plotOptions:{bar:{borderRadius:4}}});' +
+  '<\/script></body></html>';
+  return html;
+}
+function downloadHtmlString(html, filename){
+  var blob = new Blob([html], {type:'text/html;charset=utf-8;'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+function exportSavedReportHTML(id){
+  var r = getSavedReports().find(function(x){return x.id===id;});
+  if(!r) return;
+  var html = buildStaticReportHTML(r);
+  downloadHtmlString(html, (r.name.replace(/[^a-z0-9]+/gi,'_')||'report')+'_full_report.html');
+  showToast('📄 Full static HTML report downloaded.');
+}
+/* One-click from the top bar: freeze the CURRENT live dashboard view (with whatever
+   filters are applied right now) — ALL sections, not just Overview — into a standalone
+   HTML file. Nothing changes after this — the downloaded file is a snapshot, independent
+   of the live app from then on. */
+function downloadDashboardHTML(){
+  if(!data.length){ showToast('⚠️ Nothing to save yet — generate the dashboard first.'); return; }
+  var fd = getFilteredData();
+  var full = computeFullReportData(fd);
+  var m = full.overview;
+  var reportObj = {
+    name: 'City Group Sales Dashboard — ' + new Date().toLocaleDateString(),
+    savedAt: new Date().toISOString(),
+    filters: JSON.parse(JSON.stringify(filters)),
+    kpis: { totalValue:m.totalValue, totalQty:m.totalQty, achievement:m.achv, growth:m.growth, avgMom:m.avgMom, yoy:m.yoy, recordCount:fd.length },
+    full: full,
+    rows: fd
+  };
+  var html = buildStaticReportHTML(reportObj);
+  var fname = 'City_Group_Full_Dashboard_' + new Date().toISOString().slice(0,10) + '.html';
+  downloadHtmlString(html, fname);
+  showToast('📄 Full dashboard saved as a static HTML file — it will not change after this.');
+}
+document.getElementById('downloadHtmlBtn').addEventListener('click', downloadDashboardHTML);
+window.deleteSavedReport = deleteSavedReport;
+window.loadSavedReportFilters = loadSavedReportFilters;
+window.exportSavedReport = exportSavedReport;
+window.exportSavedReportHTML = exportSavedReportHTML;
+
+/* ================= SAVE REPORT MODAL (custom, no bootstrap dependency) ================= */
+function openSaveModal(){
+  document.getElementById('reportNameInput').value = TAB_TITLES[activeTab]+' - '+new Date().toLocaleDateString();
+  document.getElementById('saveReportModal').classList.add('show');
+  setTimeout(function(){ document.getElementById('reportNameInput').focus(); }, 50);
+}
+function closeSaveModal(){ document.getElementById('saveReportModal').classList.remove('show'); }
+document.getElementById('saveReportBtn').addEventListener('click', openSaveModal);
+document.getElementById('cancelSaveReportBtn').addEventListener('click', closeSaveModal);
+document.getElementById('saveReportModal').addEventListener('click', function(e){ if(e.target.id==='saveReportModal') closeSaveModal(); });
+document.getElementById('confirmSaveReportBtn').addEventListener('click', function(){
+  var name = document.getElementById('reportNameInput').value.trim();
+  if(!data.length){ showToast('⚠️ Nothing to save yet — generate the dashboard first.'); closeSaveModal(); return; }
+  try{
+    saveCurrentReport(name);
+    closeSaveModal();
+    showToast('✅ Report saved to archive.');
+    renderSavedReports();
+  }catch(err){
+    showToast('❌ Could not save report: '+err.message);
+  }
+});
+document.getElementById('reportNameInput').addEventListener('keydown', function(e){
+  if(e.key==='Enter') document.getElementById('confirmSaveReportBtn').click();
+});
+
+/* ================= MOBILE SIDEBAR ================= */
+var hb = document.getElementById('hamburgerBtn');
+if(hb){ hb.addEventListener('click', function(){ document.getElementById('sidebar').classList.add('open'); document.getElementById('mobileOverlay').classList.add('show'); }); }
+document.getElementById('mobileOverlay').addEventListener('click', closeMobileSidebar);
+function closeMobileSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('mobileOverlay').classList.remove('show'); }
+
+})();
+</script>
+</body>
+</html>
